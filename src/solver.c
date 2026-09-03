@@ -26,6 +26,55 @@ static size_t pipeline_axis_capacity(const Domain *domain, int axis,
            (size_t)domain->local[axis];
 }
 
+static Real pressure_weight(int axis) {
+    if (axis == AXIS_X) return -(Real)DX_INVERSE_SQUARE;
+    if (axis == AXIS_Y) return -(Real)DY_INVERSE_SQUARE;
+    return -(Real)DZ_INVERSE_SQUARE;
+}
+
+static void pressure_coefficients_init(PipelineWorkspace *pipeline,
+                                       const Domain *domain) {
+    for (int axis = 0; axis < AXIS_COUNT; axis++) {
+        const int length = domain->local[axis];
+        const int local_end = domain->start[axis] + length;
+        const Real w = pressure_weight(axis);
+        Real previous_c = (Real)0;
+
+        pipeline->pressure_c_prime[axis] =
+            xmalloc((size_t)length * sizeof(Real));
+        pipeline->pressure_inverse_pivot[axis] =
+            xmalloc((size_t)length * sizeof(Real));
+
+        for (int global_level = 0; global_level < local_end;
+             global_level++) {
+            Real inverse_pivot;
+            Real current_c;
+
+            if (global_level == 0) {
+                inverse_pivot = (Real)1 / ((Real)1 - (Real)2 * w);
+                current_c = (Real)2 * w * inverse_pivot;
+            } else if (global_level == domain->global[axis] - 1) {
+                inverse_pivot =
+                    (Real)1 / (((Real)1 - w) - w * previous_c);
+                current_c = (Real)0;
+            } else {
+                inverse_pivot =
+                    (Real)1 /
+                    (((Real)1 - (Real)2 * w) - w * previous_c);
+                current_c = w * inverse_pivot;
+            }
+
+            if (global_level >= domain->start[axis]) {
+                int level = global_level - domain->start[axis];
+                pipeline->pressure_c_prime[axis][level] = current_c;
+                pipeline->pressure_inverse_pivot[axis][level] =
+                    inverse_pivot;
+            }
+            previous_c = current_c;
+        }
+    }
+}
+
 static void pipeline_alloc(PipelineWorkspace *pipeline,
                            const Domain *domain) {
     size_t capacity = 0;
@@ -42,13 +91,13 @@ static void pipeline_alloc(PipelineWorkspace *pipeline,
         }
     }
 
-    pipeline->component_capacity = capacity;
-    pipeline->c_prime = xmalloc(3 * capacity * sizeof(Real));
-    pipeline->d_prime = xmalloc(3 * capacity * sizeof(Real));
+    pipeline->c_prime = xmalloc(capacity * sizeof(Real));
+    pipeline->d_prime = xmalloc(capacity * sizeof(Real));
     pipeline->forward = xmalloc(2 * (size_t)pipeline->batch_lines *
                                 sizeof(Real));
     pipeline->backward = xmalloc((size_t)pipeline->batch_lines *
                                  sizeof(Real));
+    pressure_coefficients_init(pipeline, domain);
 }
 
 void solver_init(SolverMemState *solver_mem_state,
@@ -160,5 +209,9 @@ void solver_destroy(SolverMemState *solver_mem_state) {
     free(solver_mem_state->pipeline.d_prime);
     free(solver_mem_state->pipeline.forward);
     free(solver_mem_state->pipeline.backward);
+    for (int axis = 0; axis < AXIS_COUNT; axis++) {
+        free(solver_mem_state->pipeline.pressure_c_prime[axis]);
+        free(solver_mem_state->pipeline.pressure_inverse_pivot[axis]);
+    }
     domain_destroy(&solver_mem_state->domain);
 }

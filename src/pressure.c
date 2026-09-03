@@ -78,35 +78,16 @@ static Real pressure_raw_rhs(const SolverMemState *state,
     return input->v[domain_index(&state->domain, i, j, k)];
 }
 
-static void eliminate_pressure_point(const SolverMemState *state,
-                                     const ScalarField *input, int axis,
-                                     int i, int j, int k,
-                                     Real previous_c, Real previous_d,
-                                     Real *current_c, Real *current_d) {
-    const Domain *domain = &state->domain;
-    int global_axis = domain_global_index(domain,
-                                          axis == AXIS_X ? i :
-                                          axis == AXIS_Y ? j : k,
-                                          axis);
+static Real eliminate_pressure_rhs(const SolverMemState *state,
+                                   const ScalarField *input, int axis,
+                                   int level, int i, int j, int k,
+                                   Real previous_d) {
+    const PipelineWorkspace *pipeline = &state->pipeline;
     Real w = pressure_weight(axis);
     Real raw_rhs = pressure_raw_rhs(state, input, axis, i, j, k);
-    Real inverse_diagonal;
 
-    if (global_axis == 0) {
-        inverse_diagonal = (Real)1 / ((Real)1 - (Real)2 * w);
-        *current_c = (Real)2 * w * inverse_diagonal;
-        *current_d = raw_rhs * inverse_diagonal;
-    } else if (global_axis == domain->global[axis] - 1) {
-        inverse_diagonal =
-            (Real)1 / (((Real)1 - w) - w * previous_c);
-        *current_c = (Real)0;
-        *current_d = (raw_rhs - w * previous_d) * inverse_diagonal;
-    } else {
-        inverse_diagonal =
-            (Real)1 / (((Real)1 - (Real)2 * w) - w * previous_c);
-        *current_c = w * inverse_diagonal;
-        *current_d = (raw_rhs - w * previous_d) * inverse_diagonal;
-    }
+    return (raw_rhs - w * previous_d) *
+           pipeline->pressure_inverse_pivot[axis][level];
 }
 
 static void pressure_forward(SolverMemState *state,
@@ -126,33 +107,28 @@ static void pressure_forward(SolverMemState *state,
 
         if (active > batch_lines) active = batch_lines;
         if (domain->lower[axis] != MPI_PROC_NULL) {
-            MPI_Recv(pipeline->forward, 2 * active, mpi_real_type(),
+            MPI_Recv(pipeline->forward, active, mpi_real_type(),
                      domain->lower[axis], tag, domain->cart,
                      MPI_STATUS_IGNORE);
         }
 
         if (axis == AXIS_X) {
             for (int line = 0; line < active; line++) {
-                Real previous_c = domain->lower[axis] == MPI_PROC_NULL
-                    ? (Real)0 : pipeline->forward[line];
                 Real previous_d = domain->lower[axis] == MPI_PROC_NULL
-                    ? (Real)0 : pipeline->forward[active + line];
+                    ? (Real)0 : pipeline->forward[line];
 
                 for (int level = 0; level < length; level++) {
                     int i, j, k;
-                    Real current_c, current_d;
+                    Real current_d;
                     size_t scratch = pressure_scratch_index(
                         pipeline, axis, batch, level, line, length);
 
                     pressure_line_coordinates(domain, axis,
                                               first_line + (size_t)line,
                                               level, &i, &j, &k);
-                    eliminate_pressure_point(state, input, axis, i, j, k,
-                                             previous_c, previous_d,
-                                             &current_c, &current_d);
-                    pipeline->c_prime[scratch] = current_c;
+                    current_d = eliminate_pressure_rhs(
+                        state, input, axis, level, i, j, k, previous_d);
                     pipeline->d_prime[scratch] = current_d;
-                    previous_c = current_c;
                     previous_d = current_d;
                 }
             }
@@ -160,30 +136,24 @@ static void pressure_forward(SolverMemState *state,
             for (int level = 0; level < length; level++) {
                 for (int line = 0; line < active; line++) {
                     int i, j, k;
-                    Real previous_c, previous_d;
-                    Real current_c, current_d;
+                    Real previous_d, current_d;
                     size_t scratch = pressure_scratch_index(
                         pipeline, axis, batch, level, line, length);
 
                     if (level == 0) {
-                        previous_c = domain->lower[axis] == MPI_PROC_NULL
-                            ? (Real)0 : pipeline->forward[line];
                         previous_d = domain->lower[axis] == MPI_PROC_NULL
-                            ? (Real)0 : pipeline->forward[active + line];
+                            ? (Real)0 : pipeline->forward[line];
                     } else {
                         size_t previous = pressure_scratch_index(
                             pipeline, axis, batch, level - 1, line, length);
-                        previous_c = pipeline->c_prime[previous];
                         previous_d = pipeline->d_prime[previous];
                     }
 
                     pressure_line_coordinates(domain, axis,
                                               first_line + (size_t)line,
                                               level, &i, &j, &k);
-                    eliminate_pressure_point(state, input, axis, i, j, k,
-                                             previous_c, previous_d,
-                                             &current_c, &current_d);
-                    pipeline->c_prime[scratch] = current_c;
+                    current_d = eliminate_pressure_rhs(
+                        state, input, axis, level, i, j, k, previous_d);
                     pipeline->d_prime[scratch] = current_d;
                 }
             }
@@ -193,10 +163,9 @@ static void pressure_forward(SolverMemState *state,
             for (int line = 0; line < active; line++) {
                 size_t last = pressure_scratch_index(
                     pipeline, axis, batch, length - 1, line, length);
-                pipeline->forward[line] = pipeline->c_prime[last];
-                pipeline->forward[active + line] = pipeline->d_prime[last];
+                pipeline->forward[line] = pipeline->d_prime[last];
             }
-            MPI_Send(pipeline->forward, 2 * active, mpi_real_type(),
+            MPI_Send(pipeline->forward, active, mpi_real_type(),
                      domain->upper[axis], tag, domain->cart);
         }
     }
@@ -236,7 +205,8 @@ static void pressure_backward(SolverMemState *state,
                     size_t scratch = pressure_scratch_index(
                         pipeline, axis, batch, level, line, length);
                     Real solution = pipeline->d_prime[scratch] -
-                                    pipeline->c_prime[scratch] * next;
+                                    pipeline->pressure_c_prime[axis][level] *
+                                        next;
 
                     pressure_line_coordinates(domain, axis,
                                               first_line + (size_t)line,
@@ -258,7 +228,7 @@ static void pressure_backward(SolverMemState *state,
                     size_t scratch = pressure_scratch_index(
                         pipeline, axis, batch, level, line, length);
                     Real solution = pipeline->d_prime[scratch] -
-                                    pipeline->c_prime[scratch] *
+                                    pipeline->pressure_c_prime[axis][level] *
                                         pipeline->backward[line];
 
                     pressure_line_coordinates(domain, axis,

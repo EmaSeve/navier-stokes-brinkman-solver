@@ -15,15 +15,15 @@
  *   cc ... -DWIDTH=32 -DHEIGHT=32 -DDEPTH=32 -DT=1.0 -DSTEPS=100
  */
 #ifndef WIDTH
-#define WIDTH 128
+#define WIDTH 256
 #endif
 
 #ifndef HEIGHT
-#define HEIGHT 128
+#define HEIGHT 256
 #endif
 
 #ifndef DEPTH
-#define DEPTH 128
+#define DEPTH 256
 #endif
 
 #define GRID_CELLS ((size_t)WIDTH * (size_t)HEIGHT * (size_t)DEPTH)
@@ -63,7 +63,7 @@
 #define DT ((Real)(T) / (Real)(STEPS))
 #define WR_FREQ 5
 // Kinematic viscosity
-#define NU 0.01
+#define NU 1
 
 #ifndef PIPELINE_BATCH_LINES
 #define PIPELINE_BATCH_LINES 64
@@ -71,11 +71,12 @@
 
 typedef struct PipelineWorkspace {
     int batch_lines;
-    size_t component_capacity;
     Real *c_prime;
     Real *d_prime;
     Real *forward;
     Real *backward;
+    Real *pressure_c_prime[AXIS_COUNT];
+    Real *pressure_inverse_pivot[AXIS_COUNT];
 } PipelineWorkspace;
 
 typedef struct SolverMemState {

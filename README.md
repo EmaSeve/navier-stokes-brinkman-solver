@@ -96,14 +96,4 @@ halo exchange of u_x, u_y and u_z for divergence
     +-- pressure update
 ```
 
-For every momentum direction the complete forward phase is performed in
-component order `v_x`, `v_y`, `v_z`. The backward phase then processes
-`v_z`, `v_y`, `v_x`. Within a component, each batch is sent immediately to
-the next Cartesian neighbour, allowing adjacent blocks to work concurrently.
-
-The forward interface contains the last reduced `(c', d')` pair for every
-line in the batch. The backward interface contains the first solution value
-owned by the block on the right. Only ranks on physical domain boundaries
-apply the physical boundary conditions.
-Each rank must retain its local reduced coefficients until the backward phase arrives.
 

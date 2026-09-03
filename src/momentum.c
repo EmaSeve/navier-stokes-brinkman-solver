@@ -41,10 +41,9 @@ static void line_coordinates(const Domain *domain, int axis, size_t line,
 }
 
 static size_t scratch_index(const PipelineWorkspace *pipeline, int axis,
-                            int component, size_t batch, int level,
-                            int line, int length) {
-    size_t batch_base = (size_t)component * pipeline->component_capacity +
-                        batch * (size_t)length * pipeline->batch_lines;
+                            size_t batch, int level, int line, int length) {
+    size_t batch_base =
+        batch * (size_t)length * pipeline->batch_lines;
 
     /* X keeps each physical row contiguous; Y and Z vectorize across lines. */
     if (axis == AXIS_X) {
@@ -93,7 +92,7 @@ static int forward_interior_simd(SolverMemState *state, int axis,
     }
 
     size_t field_index = domain_index(domain, i, j, k);
-    size_t current = scratch_index(pipeline, axis, component, batch,
+    size_t current = scratch_index(pipeline, axis, batch,
                                    level, line, length);
     const Real *previous_c;
     const Real *previous_d;
@@ -110,7 +109,7 @@ static int forward_interior_simd(SolverMemState *state, int axis,
         previous_c = &pipeline->forward[line];
         previous_d = &pipeline->forward[active + line];
     } else {
-        size_t previous = scratch_index(pipeline, axis, component, batch,
+        size_t previous = scratch_index(pipeline, axis, batch,
                                         level - 1, line, length);
         previous_c = &pipeline->c_prime[previous];
         previous_d = &pipeline->d_prime[previous];
@@ -244,8 +243,8 @@ static void forward_component(SolverMemState *state, Data *data,
                 for (int level = 0; level < length; level++) {
                     int i, j, k;
                     Real current_c, current_d;
-                    size_t index = scratch_index(pipeline, axis, component,
-                                                 batch, level, line, length);
+                    size_t index = scratch_index(pipeline, axis, batch,
+                                                 level, line, length);
 
                     line_coordinates(domain, axis, first_line + (size_t)line,
                                      level, &i, &j, &k);
@@ -276,8 +275,8 @@ static void forward_component(SolverMemState *state, Data *data,
                         continue;
                     }
 #endif
-                    size_t index = scratch_index(pipeline, axis, component,
-                                                 batch, level, line, length);
+                    size_t index = scratch_index(pipeline, axis, batch,
+                                                 level, line, length);
 
                     if (level == 0) {
                         previous_c = domain->lower[axis] == MPI_PROC_NULL
@@ -286,8 +285,7 @@ static void forward_component(SolverMemState *state, Data *data,
                             ? (Real)0 : pipeline->forward[active + line];
                     } else {
                         size_t previous = scratch_index(
-                            pipeline, axis, component, batch,
-                            level - 1, line, length);
+                            pipeline, axis, batch, level - 1, line, length);
                         previous_c = pipeline->c_prime[previous];
                         previous_d = pipeline->d_prime[previous];
                     }
@@ -307,7 +305,7 @@ static void forward_component(SolverMemState *state, Data *data,
 
         if (domain->upper[axis] != MPI_PROC_NULL) {
             for (int line = 0; line < active; line++) {
-                size_t last = scratch_index(pipeline, axis, component, batch,
+                size_t last = scratch_index(pipeline, axis, batch,
                                             length - 1, line, length);
                 pipeline->forward[line] = pipeline->c_prime[last];
                 pipeline->forward[active + line] = pipeline->d_prime[last];
@@ -355,8 +353,7 @@ static void backward_component(SolverMemState *state, int axis,
                 for (int level = length - 1; level >= 0; level--) {
                     int i, j, k;
                     size_t scratch = scratch_index(
-                        pipeline, axis, component, batch,
-                        level, line, length);
+                        pipeline, axis, batch, level, line, length);
                     Real solution = pipeline->d_prime[scratch] -
                                     pipeline->c_prime[scratch] * next;
 
@@ -380,8 +377,7 @@ static void backward_component(SolverMemState *state, int axis,
                 while (line < active) {
                     int i, j, k;
                     size_t scratch = scratch_index(
-                        pipeline, axis, component, batch,
-                        level, line, length);
+                        pipeline, axis, batch, level, line, length);
 
                     line_coordinates(domain, axis,
                                      first_line + (size_t)line,
@@ -424,8 +420,6 @@ static void solve_momentum_direction(SolverMemState *state, Data *data,
                                      int axis, int t_step) {
     for (int component = 0; component < 3; component++) {
         forward_component(state, data, axis, component, t_step);
-    }
-    for (int component = 2; component >= 0; component--) {
         backward_component(state, axis, component);
     }
 }
