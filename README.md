@@ -12,7 +12,7 @@ make solver
 Enable the explicit SIMD momentum kernels with independently tunable blocks of SIMD vectors:
 
 ```sh
-make SIMD=1 ZETA_SIMD_VECTORS=4 U_SIMD_VECTORS=8
+make SIMD=1 ZETA_SIMD_VECTORS=16 U_SIMD_VECTORS=16
 ```
 
 Compile all tests:
@@ -25,7 +25,7 @@ The test executables are created in `build/tests/` and can be run separately:
 
 ```sh
 ./build/tests/paper_man
-./build/tests/moving_sphere
+./build/tests/constant_forcing_man
 ./build/tests/channel_obstacle
 ```
 
@@ -42,12 +42,6 @@ Errors and convergence rates are written to `build/convergence/results.csv`.
 ![Velocity convergence](docs/convergence/velocity.svg)
 
 ![Pressure convergence](docs/convergence/pressure.svg)
-
-Generate and replace the static plots with, reading from `build/convergence/results.csv`:
-
-```sh
-./scripts/plot_convergence.py
-```
 
 ## Solver structure
 
@@ -87,9 +81,9 @@ default and becomes `float` when the code is compiled with `-DUSE_FLOAT`.
 ```text
 ScalarField                         VectorField
 +------------------+                +------------------+
-| Real *v          |                | Real *v_x        | --> [x0][x1]...[xN]
-+------------------+                | Real *v_y        | --> [y0][y1]...[yN]
-                                    | Real *v_z        | --> [z0][z1]...[zN]
+| Real *v          |                | Real *v_x        |
++------------------+                | Real *v_y        |
+                                    | Real *v_z        |
                                     +------------------+
 ```
 

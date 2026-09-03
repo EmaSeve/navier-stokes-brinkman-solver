@@ -14,15 +14,15 @@
  *   cc ... -DWIDTH=32 -DHEIGHT=32 -DDEPTH=32 -DT=1.0 -DSTEPS=100
  */
 #ifndef WIDTH
-#define WIDTH 256 
+#define WIDTH 128 
 #endif
 
 #ifndef HEIGHT
-#define HEIGHT 256
+#define HEIGHT 128
 #endif
 
 #ifndef DEPTH
-#define DEPTH 256
+#define DEPTH 128
 #endif
 
 #define GRID_CELLS ((size_t)WIDTH * (size_t)HEIGHT * (size_t)DEPTH)
@@ -56,13 +56,13 @@
 #endif
 
 #ifndef STEPS
-#define STEPS 200
+#define STEPS 100
 #endif
 
 #define DT ((Real)(T) / (Real)(STEPS))
 #define WR_FREQ 5
 // Kinematic viscosity
-#define NU 1.0
+#define NU 0.1
 
 
 typedef struct SolverMemState {
