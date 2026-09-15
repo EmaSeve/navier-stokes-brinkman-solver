@@ -1,8 +1,8 @@
 CC = cc
 CFLAGS = -std=c11 -O3 -Wall -Wextra -D_DEFAULT_SOURCE -Iinclude
 SIMD ?= 0
-ZETA_SIMD_VECTORS ?= 4
-U_SIMD_VECTORS ?= 8
+ZETA_SIMD_VECTORS ?= 16
+U_SIMD_VECTORS ?= 16
 
 ifeq ($(SIMD),1)
 CFLAGS += -DUSE_SIMD \
