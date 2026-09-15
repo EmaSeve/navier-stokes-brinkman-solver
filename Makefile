@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -std=c11 -O3 -Wall -Wextra -Iinclude
+CFLAGS = -std=c11 -O3 -Wall -Wextra -D_DEFAULT_SOURCE -Iinclude
 SIMD ?= 0
 ZETA_SIMD_VECTORS ?= 4
 U_SIMD_VECTORS ?= 8
@@ -27,6 +27,9 @@ CORE_SOURCES = $(filter-out src/main.c,$(SOURCES))
 TEST_TARGETS = $(patsubst $(TEST_DIR)/%.c,$(TEST_BIN_DIR)/%,$(TEST_SOURCES))
 CHANNEL_CFLAGS = -DLX=2.0 -DLY=1.0 -DLZ=1.0 \
 	-DWIDTH=192 -DHEIGHT=96 -DDEPTH=96
+CAVITY_CFLAGS = -DLX=1.0 -DLY=1.0 -DLZ=1.0 \
+	-DWIDTH=64 -DHEIGHT=64 -DDEPTH=64 \
+	-DNU=0.0025 -DT=20.0 -DSTEPS=10000 -DWR_FREQ=100
 
 $(TARGET): $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) $(SOURCES) -o $(TARGET) -lm
@@ -36,6 +39,7 @@ tests: $(TEST_TARGETS)
 test: tests
 
 $(TEST_BIN_DIR)/channel_obstacle $(TEST_BIN_DIR)/moving_sphere: CFLAGS += $(CHANNEL_CFLAGS)
+$(TEST_BIN_DIR)/cavity: CFLAGS += $(CAVITY_CFLAGS)
 
 $(TEST_BIN_DIR)/%: $(TEST_DIR)/%.c $(CORE_SOURCES) $(HEADERS) $(TEST_HEADERS) Makefile
 	mkdir -p $(TEST_BIN_DIR)

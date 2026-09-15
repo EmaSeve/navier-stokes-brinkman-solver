@@ -60,15 +60,21 @@
 #endif
 
 #define DT ((Real)(T) / (Real)(STEPS))
+#ifndef WR_FREQ
 #define WR_FREQ 5
+#endif
 // Kinematic viscosity
+#ifndef NU
 #define NU 1.0
+#endif
 
 
 typedef struct SolverMemState {
     VectorField eta;
     VectorField zeta;
     VectorField u;
+    VectorField u_prev;
+    VectorField u_star;
     VectorField k;
     ScalarField pressure;
     ScalarField pressure_star;

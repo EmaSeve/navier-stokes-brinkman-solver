@@ -1,5 +1,56 @@
 #include "momentum.h"
 
+#include <string.h>
+
+static void copy_vector_field(VectorField *dst,
+                              const VectorField *src) {
+    size_t vec_bytes = GRID_CELLS * sizeof(Real);
+    memcpy(dst->v_x, src->v_x, vec_bytes);
+    memcpy(dst->v_y, src->v_y, vec_bytes);
+    memcpy(dst->v_z, src->v_z, vec_bytes);
+}
+
+void swap_velocity_buffers(SolverMemState *solver_mem_state) {
+    Real *tmp;
+
+    tmp = solver_mem_state->u.v_x;
+    solver_mem_state->u.v_x = solver_mem_state->u_prev.v_x;
+    solver_mem_state->u_prev.v_x = tmp;
+
+    tmp = solver_mem_state->u.v_y;
+    solver_mem_state->u.v_y = solver_mem_state->u_prev.v_y;
+    solver_mem_state->u_prev.v_y = tmp;
+
+    tmp = solver_mem_state->u.v_z;
+    solver_mem_state->u.v_z = solver_mem_state->u_prev.v_z;
+    solver_mem_state->u_prev.v_z = tmp;
+}
+
+void compute_extrapolated_velocity(SolverMemState *solver_mem_state,
+                                   int t_step) {
+    const Real *restrict u_x = solver_mem_state->u.v_x;
+    const Real *restrict u_y = solver_mem_state->u.v_y;
+    const Real *restrict u_z = solver_mem_state->u.v_z;
+    const Real *restrict u_prev_x = solver_mem_state->u_prev.v_x;
+    const Real *restrict u_prev_y = solver_mem_state->u_prev.v_y;
+    const Real *restrict u_prev_z = solver_mem_state->u_prev.v_z;
+    Real *restrict u_star_x = solver_mem_state->u_star.v_x;
+    Real *restrict u_star_y = solver_mem_state->u_star.v_y;
+    Real *restrict u_star_z = solver_mem_state->u_star.v_z;
+
+    if (t_step == 0) {
+        copy_vector_field(&solver_mem_state->u_star, &solver_mem_state->u);
+        return;
+    }
+
+    for (size_t idx = 0; idx < GRID_CELLS; idx++) {
+        u_star_x[idx] = (Real)1.5 * u_x[idx] - (Real)0.5 * u_prev_x[idx];
+        u_star_y[idx] = (Real)1.5 * u_y[idx] - (Real)0.5 * u_prev_y[idx];
+        u_star_z[idx] = (Real)1.5 * u_z[idx] - (Real)0.5 * u_prev_z[idx];
+    }
+
+}
+
 
 /* eta: rhs = u + (DT/beta)*g - eta 
  * v_comp = [x:0, y:1, z:2]
@@ -277,6 +328,9 @@ void momentum_step(SolverMemState *solver_mem_state,
                    Real *restrict rhs,
                    Real *restrict tmp,
                    Data *data, int t_step, SolverStats *solver_stats) {
+    compute_extrapolated_velocity(solver_mem_state, t_step);
+    copy_vector_field(&solver_mem_state->u_prev, &solver_mem_state->u);
+
     
     // eta: compute next update for the three component
     uint64_t start_ns = time_ns();

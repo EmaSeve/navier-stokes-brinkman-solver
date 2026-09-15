@@ -3,25 +3,28 @@
 set -euo pipefail
 
 root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-build_dir="$root/build/convergence"
+build_dir="$root/build/convective_convergence"
 raw_file="$build_dir/.raw.csv"
 results_file="$build_dir/results.csv"
-executable="$build_dir/paper_man"
+executable="$build_dir/paper_convective_man"
 compiler="${CC:-cc}"
 
-# Each configuration contains: grid size, dt, total time.
+# Use the same time step and the same number of steps on every grid.  A very
+# small fixed DT isolates spatial error without comparing different pressure
+# startup histories (the coarse-grid DT~h^2 setup used only one coarse step).
 spatial_configs=(
-    "32  1e-4 1e-3"
-    "64  1e-4 1e-3"
-    "128  1e-4 1e-3"
-    "256 1e-4 1e-3"
+    "48  1e-4 1.6e-3"
+    "64  1e-4 1.6e-3"
+    "96  1e-4 1.6e-3"
+    "128 1e-4 1.6e-3"
 )
 
+# Keep spatial error below the temporal error over the selected time steps.
 temporal_configs=(
-    "256 0.05    1.0"
-    "256 0.025   1.0"
-    "256 0.0125  1.0"
-    "256 0.00625 1.0"
+    "96 0.05    1.0"
+    "96 0.025   1.0"
+    "96 0.0125  1.0"
+    "96 0.00625 1.0"
 )
 
 core_sources=()
@@ -53,7 +56,8 @@ run_case()
     "$compiler" -std=c11 -O3 -Wall -Wextra -D_DEFAULT_SOURCE -I"$root/include" \
         -DWIDTH="$grid" -DHEIGHT="$grid" -DDEPTH="$grid" \
         -DT="$total_time" -DSTEPS="$steps" \
-        "$root/test/paper_man.c" "${core_sources[@]}" -lm -o "$executable"
+        "$root/test/paper_convective_man.c" "${core_sources[@]}" \
+        -lm -o "$executable"
 
     output="$("$executable")"
     h="$(awk -v n="$grid" \
@@ -61,10 +65,10 @@ run_case()
 
     printf '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' \
         "$study" "$grid" "$h" "$steps" "$dt" "$total_time" \
-        "$(awk '/L2 error u_x:/ {print $NF}' <<< "$output")" \
-        "$(awk '/L2 error u_y:/ {print $NF}' <<< "$output")" \
-        "$(awk '/L2 error u_z:/ {print $NF}' <<< "$output")" \
-        "$(awk '/L2 error p:/   {print $NF}' <<< "$output")" \
+        "$(awk '/^  L2 error u_x:/ {print $NF}' <<< "$output")" \
+        "$(awk '/^  L2 error u_y:/ {print $NF}' <<< "$output")" \
+        "$(awk '/^  L2 error u_z:/ {print $NF}' <<< "$output")" \
+        "$(awk '/^  L2 error p:/   {print $NF}' <<< "$output")" \
         >> "$raw_file"
 }
 
@@ -97,7 +101,7 @@ NR == 1 {
         rate_uy = rate(previous_uy, $8, previous_scale, scale)
         rate_uz = rate(previous_uz, $9, previous_scale, scale)
         rate_p  = rate(previous_p, $10, previous_scale, scale)
-        printf "  ux=%.4f  uy=%.4f  uz=%.4f  p=%.4f\n",
+        printf "  ux=%.4f uy=%.4f uz=%.4f p=%.4f\n",
                rate_ux, rate_uy, rate_uz, rate_p
     }
 
@@ -112,3 +116,6 @@ NR == 1 {
 ' "$raw_file"
 
 printf '\nResults written to %s\n' "$results_file"
+
+"$root/scripts/plot_convergence.py" "$results_file" \
+    "$root/docs/convective_convergence"

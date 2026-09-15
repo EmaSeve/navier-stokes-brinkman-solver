@@ -1,5 +1,6 @@
 #ifndef PHYSICS_H
 #define PHYSICS_H
+#include <stdbool.h>
 #include "types.h"
 
 struct SolverMemState;
@@ -10,6 +11,18 @@ Real gamma_from_k(Real k);
 Real time_physical_coord(Real t_step);
 Real centered_physical_coord(int index, int component);
 Real staggered_physical_coord(int index, int component);
+
+bool valid_convective_point(int i, int j, int k, int component);
+
+Real advective_form(int i, int j, int k, int component,
+                    const VectorField *vel,
+                    VectorFunction bc_velocity, Real time);
+Real divergence_form(int i, int j, int k, int component,
+                     const VectorField *vel,
+                     VectorFunction bc_velocity, Real time);
+Real convective_term(int i, int j, int k, int component,
+                     const VectorField *vel,
+                     VectorFunction bc_velocity, Real time);
 
 Real bc_left(VectorFunction bc_velocity,
              int i, int j, int k, int t_step, int component);

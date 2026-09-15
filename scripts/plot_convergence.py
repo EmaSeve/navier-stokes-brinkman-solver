@@ -102,6 +102,15 @@ def observed_rate(rows, error_key, scale_key):
     return math.log(error_ratio) / math.log(scale_ratio)
 
 
+def interval_rates(rows, error_key, scale_key):
+    ordered = sorted(rows, key=lambda row: number(row[scale_key]), reverse=True)
+    return [
+        math.log(number(coarse[error_key]) / number(fine[error_key])) /
+        math.log(number(coarse[scale_key]) / number(fine[scale_key]))
+        for coarse, fine in zip(ordered, ordered[1:])
+    ]
+
+
 def log_tick_exponents(log_minimum, log_maximum, maximum_ticks=6):
     low = math.ceil(log_minimum)
     high = math.floor(log_maximum)
@@ -256,12 +265,14 @@ def draw_panel(
     legend_index = 0
     for key, label in series:
         rate = observed_rate(rows, key, scale_key)
+        rates = interval_rates(rows, key, scale_key)
         legend_x, legend_y = legend_positions[legend_index]
         elements.extend(
             draw_legend_item(
                 legend_x,
                 legend_y,
-                f"{label}  ·  finest slope {rate:.2f}",
+                f"{label}  ·  rates {' / '.join(f'{value:.2f}' for value in rates)}"
+                f"  ·  finest {rate:.2f}",
                 SERIES_STYLE[key]["color"],
                 SERIES_STYLE[key]["marker"],
             )
@@ -422,7 +433,7 @@ def write_figure(rows, output_path, title, series):
             spatial,
             series,
             "Spatial refinement",
-            "Grid spacing decreases while Δt is fixed",
+            "Grid refinement at fixed Δt and final time",
             "h",
             "Grid spacing  h",
             "second-order  O(h²)",

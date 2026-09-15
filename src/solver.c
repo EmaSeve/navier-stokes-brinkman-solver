@@ -4,13 +4,19 @@
 #include "pressure.h"
 #include "output.h"
 
+#include <string.h>
+
 void solver_init(SolverMemState *solver_mem_state,
                  Data *data,
                  const char *data_name) {
-    (void)data_name;
-   
-    // TODO: Parse data_name and assign the correspondent Data structure,
-    // return error if not matched
+    if (data_name != NULL) {
+        if (strcmp(data_name, paper_data.name) == 0) {
+            *data = paper_data;
+        } else {
+            fprintf(stderr, "Unknown data set: %s\n", data_name);
+            exit(EXIT_FAILURE);
+        }
+    }
     
     // Allocate memory
     scalarField_alloc(&solver_mem_state->pressure);
@@ -19,15 +25,27 @@ void solver_init(SolverMemState *solver_mem_state,
     vectorField_alloc(&solver_mem_state->eta);
     vectorField_alloc(&solver_mem_state->zeta);
     vectorField_alloc(&solver_mem_state->u);
+    vectorField_alloc(&solver_mem_state->u_prev);
+    vectorField_alloc(&solver_mem_state->u_star);
     
     // Fill velocity with values at t=0
     vectorField_fill(&solver_mem_state->eta, data->velocity_fn, 0);
     vectorField_fill(&solver_mem_state->zeta, data->velocity_fn, 0);
     vectorField_fill(&solver_mem_state->u, data->velocity_fn, 0);
+    vectorField_fill(&solver_mem_state->u_prev, data->velocity_fn, 0);
+    vectorField_fill(&solver_mem_state->u_star, data->velocity_fn, 0);
     
-    // Fill pressure with values at t=0
-    scalarField_fill(&solver_mem_state->pressure, data->pressure_fn, 0);
-    scalarField_fill(&solver_mem_state->pressure_star, data->pressure_fn, 0);
+    /*
+     * The projection stores pressure at half time levels.  At the first
+     * momentum solve pressure_star is p^{*,1/2}; pressure itself is the
+     * preceding p^{-1/2}.  Initialising both fields with p(0) introduces an
+     * O(DT) pressure-gradient error at every subsequent extrapolation and
+     * reduces the observed temporal order to one for time-dependent p.
+     */
+    scalarField_fill(&solver_mem_state->pressure, data->pressure_fn,
+                     (Real)-0.5);
+    scalarField_fill(&solver_mem_state->pressure_star, data->pressure_fn,
+                     (Real)0.5);
     
     // Fill the initial porosity field at t=0
     vectorField_fill(&solver_mem_state->k, data->porosity_fn, 0);

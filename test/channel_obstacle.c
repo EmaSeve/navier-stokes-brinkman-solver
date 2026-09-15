@@ -3,12 +3,17 @@
 
 #define MAX_STREAMWISE_SPEED ((Real)1.0)
 #define FREE_FLUID_PERMEABILITY ((Real)1e30)
-/*
- * With DT = 1/300 and NU = 1, values below DT*NU/2 produce an oscillatory
- * Crank-Nicolson amplification factor for the Brinkman drag.  This value
- * gives a positive factor of about 0.09 while retaining a strong resistance.
- */
+/* For isolated Crank--Nicolson drag, nonnegative amplification requires
+ * DT * NU / (2*K) <= 1. Allow run-specific permeability and geometry. */
+#ifndef SOLID_PERMEABILITY
 #define SOLID_PERMEABILITY ((Real)1e-4)
+#endif
+#ifndef OBSTACLE_CENTER_X
+#define OBSTACLE_CENTER_X ((Real)LX / (Real)2)
+#endif
+#ifndef CHANNEL_CASE_NAME
+#define CHANNEL_CASE_NAME "Channel with wall-attached inclined Brinkman obstacle"
+#endif
 #define OBSTACLE_ANGLE ((Real)(35.0 * M_PI / 180.0))
 #define OBSTACLE_HALF_LENGTH ((Real)0.40 * (Real)LY)
 #define OBSTACLE_HALF_THICKNESS ((Real)0.04 * (Real)LY)
@@ -94,7 +99,7 @@ static Real channel_initial_velocity(Real x,
 /*
  * Rectangular obstacle rotated by OBSTACLE_ANGLE and extruded through the
  * complete Z direction.  Its lower centerline endpoint is attached to the
- * y == 0 wall, while its center remains halfway along the X direction.
+ * y == 0 wall; OBSTACLE_CENTER_X sets its streamwise position.
  *
  * The solver uses this field as the Brinkman permeability K in the term
  * NU/K.  The solid therefore has a small K (large resistance), while the
@@ -109,7 +114,7 @@ static Real inclined_obstacle_permeability(Real x,
     const Real cosine = (Real)cos((double)OBSTACLE_ANGLE);
     const Real sine = (Real)sin((double)OBSTACLE_ANGLE);
     const Real obstacle_center_y = OBSTACLE_HALF_LENGTH * sine;
-    const Real relative_x = x - (Real)LX / (Real)2;
+    const Real relative_x = x - (Real)OBSTACLE_CENTER_X;
     const Real relative_y = y - obstacle_center_y;
     const Real along_obstacle =
         cosine * relative_x + sine * relative_y;
@@ -133,7 +138,7 @@ static Real inclined_obstacle_permeability(Real x,
 int main(void)
 {
     Data data = {
-        .name = "Channel with wall-attached inclined Brinkman obstacle",
+        .name = CHANNEL_CASE_NAME,
         .bc_velocity = channel_boundary_velocity,
         .forcing_fn = zero_forcing,
         .porosity_fn = inclined_obstacle_permeability,
