@@ -22,11 +22,6 @@ typedef struct SolverErrorNorms {
     ErrorNorms pressure;
 } SolverErrorNorms;
 
-typedef struct SolverErrorReport {
-    SolverErrorNorms global;
-    SolverErrorNorms interior;
-} SolverErrorReport;
-
 /*
  * Observed convergence rate between two discretizations:
  *
@@ -109,31 +104,6 @@ static inline ErrorNorms compute_pressure_error_norms(const Real *numerical,
     error.L1 *= dV;
     error.L2 = (Real)sqrt((double)(error.L2 * dV));
 
-    return error;
-}
-
-static inline ErrorNorms compute_interior_error_norms(const Real *numerical,
-                                                       const Real *exact,
-                                                       Real mean_difference)
-{
-    ErrorNorms error = {0.0, 0.0, 0.0};
-    const Real dV = (Real)DX * (Real)DY * (Real)DZ;
-
-    for (int k = 1; k < DEPTH - 1; ++k) {
-        for (int j = 1; j < HEIGHT - 1; ++j) {
-            for (int i = 1; i < WIDTH - 1; ++i) {
-                const size_t index = (size_t)k * WIDTH * HEIGHT +
-                                     (size_t)j * WIDTH + (size_t)i;
-                const Real difference = (Real)fabs((double)(
-                    numerical[index] - exact[index] - mean_difference));
-                error.L1 += difference;
-                error.L2 += difference * difference;
-                if (difference > error.Linf) error.Linf = difference;
-            }
-        }
-    }
-    error.L1 *= dV;
-    error.L2 = (Real)sqrt((double)(error.L2 * dV));
     return error;
 }
 
@@ -224,49 +194,6 @@ static inline SolverErrorNorms compute_solver_error_norms(
     return errors;
 }
 
-static inline SolverErrorReport compute_solver_error_report(
-    const SolverMemState *solver_mem_state, const Data *data,
-    Real velocity_time, Real pressure_time)
-{
-    VectorField exact_velocity;
-    ScalarField exact_pressure;
-    Real pressure_mean = (Real)0;
-    size_t pressure_count = 0;
-
-    vectorField_alloc(&exact_velocity);
-    scalarField_alloc(&exact_pressure);
-    fill_exact_velocity(&exact_velocity, data->velocity_fn, velocity_time);
-    fill_exact_pressure(&exact_pressure, data->pressure_fn, pressure_time);
-
-    for (int k = 1; k < DEPTH - 1; ++k)
-        for (int j = 1; j < HEIGHT - 1; ++j)
-            for (int i = 1; i < WIDTH - 1; ++i) {
-                const size_t index = (size_t)k * WIDTH * HEIGHT +
-                                     (size_t)j * WIDTH + (size_t)i;
-                pressure_mean += solver_mem_state->pressure.v[index] -
-                                 exact_pressure.v[index];
-                ++pressure_count;
-            }
-    pressure_mean /= (Real)pressure_count;
-
-    SolverErrorReport report = {
-        .global = {
-            compute_error_norms(solver_mem_state->u.v_x, exact_velocity.v_x, GRID_CELLS),
-            compute_error_norms(solver_mem_state->u.v_y, exact_velocity.v_y, GRID_CELLS),
-            compute_error_norms(solver_mem_state->u.v_z, exact_velocity.v_z, GRID_CELLS),
-            compute_pressure_error_norms(solver_mem_state->pressure.v, exact_pressure.v, GRID_CELLS)},
-        .interior = {
-            compute_interior_error_norms(solver_mem_state->u.v_x, exact_velocity.v_x, 0),
-            compute_interior_error_norms(solver_mem_state->u.v_y, exact_velocity.v_y, 0),
-            compute_interior_error_norms(solver_mem_state->u.v_z, exact_velocity.v_z, 0),
-            compute_interior_error_norms(solver_mem_state->pressure.v, exact_pressure.v, pressure_mean)}
-    };
-
-    free(exact_velocity.v_x); free(exact_velocity.v_y); free(exact_velocity.v_z);
-    free(exact_pressure.v);
-    return report;
-}
-
 static inline void print_solver_error_norms(const SolverErrorNorms *errors,
                                             Real velocity_time,
                                             Real pressure_time)
@@ -283,17 +210,6 @@ static inline void print_solver_error_norms(const SolverErrorNorms *errors,
     printf("  L2 error u_y: %.4e\n", (double)errors->velocity_y.L2);
     printf("  L2 error u_z: %.4e\n", (double)errors->velocity_z.L2);
     printf("  L2 error p:   %.4e\n", (double)errors->pressure.L2);
-}
-
-static inline void print_solver_error_report(const SolverErrorReport *report,
-                                             Real velocity_time,
-                                             Real pressure_time)
-{
-    print_solver_error_norms(&report->global, velocity_time, pressure_time);
-    printf("  Interior L2 error u_x: %.10e\n", (double)report->interior.velocity_x.L2);
-    printf("  Interior L2 error u_y: %.10e\n", (double)report->interior.velocity_y.L2);
-    printf("  Interior L2 error u_z: %.10e\n", (double)report->interior.velocity_z.L2);
-    printf("  Interior L2 error p:   %.10e\n", (double)report->interior.pressure.L2);
 }
 
 #endif

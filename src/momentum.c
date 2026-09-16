@@ -10,22 +10,6 @@ static void copy_vector_field(VectorField *dst,
     memcpy(dst->v_z, src->v_z, vec_bytes);
 }
 
-void swap_velocity_buffers(SolverMemState *solver_mem_state) {
-    Real *tmp;
-
-    tmp = solver_mem_state->u.v_x;
-    solver_mem_state->u.v_x = solver_mem_state->u_prev.v_x;
-    solver_mem_state->u_prev.v_x = tmp;
-
-    tmp = solver_mem_state->u.v_y;
-    solver_mem_state->u.v_y = solver_mem_state->u_prev.v_y;
-    solver_mem_state->u_prev.v_y = tmp;
-
-    tmp = solver_mem_state->u.v_z;
-    solver_mem_state->u.v_z = solver_mem_state->u_prev.v_z;
-    solver_mem_state->u_prev.v_z = tmp;
-}
-
 void compute_extrapolated_velocity(SolverMemState *solver_mem_state,
                                    int t_step) {
     const Real *restrict u_x = solver_mem_state->u.v_x;
@@ -48,7 +32,6 @@ void compute_extrapolated_velocity(SolverMemState *solver_mem_state,
         u_star_y[idx] = (Real)1.5 * u_y[idx] - (Real)0.5 * u_prev_y[idx];
         u_star_z[idx] = (Real)1.5 * u_z[idx] - (Real)0.5 * u_prev_z[idx];
     }
-
 }
 
 
@@ -329,6 +312,7 @@ void momentum_step(SolverMemState *solver_mem_state,
                    Real *restrict tmp,
                    Data *data, int t_step, SolverStats *solver_stats) {
     compute_extrapolated_velocity(solver_mem_state, t_step);
+    /* Preserve u^n before the ADI sweeps update u in place. */
     copy_vector_field(&solver_mem_state->u_prev, &solver_mem_state->u);
 
     

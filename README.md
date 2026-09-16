@@ -26,22 +26,21 @@ The test executables are created in `build/tests/` and can be run separately:
 ```sh
 ./build/tests/paper_man
 ./build/tests/constant_forcing_man
+./build/tests/convective_forms
+./build/tests/paper_convective_man
 ./build/tests/channel_obstacle
 ```
 
-## Convergence study
-
-Run the spatial and temporal convergence tests:
+The channel case at $Re=400$ has a separate reproducible configuration:
 
 ```sh
-./scripts/run_convergence.sh
+make build/tests/channel_obstacle_re400
+./build/tests/channel_obstacle_re400
 ```
 
-Errors and convergence rates are written to `build/convergence/results.csv`.
+Its domain, grid, viscosity, permeability, time step, and obstacle position
+are recorded in `configs/channel_re400.mk`.
 
-![Velocity convergence](docs/convergence/velocity.svg)
-
-![Pressure convergence](docs/convergence/pressure.svg)
 
 ## Solver structure
 
@@ -56,6 +55,7 @@ solver_init
 time-step loop
     |
     +-- momentum_step
+    |      +-- extrapolate velocity for explicit convection
     |      +-- eta: solve along X
     |      +-- zeta: solve along Y
     |      +-- u: solve along Z
@@ -100,7 +100,9 @@ Data
 +-- pressure_fn()             initial/exact pressure
 
 SolverMemState
-+-- eta, zeta, u, k           VectorField
++-- eta, zeta, u              ADI velocity fields
++-- u_prev, u_star            velocity history and extrapolated velocity
++-- k                         permeability field
 +-- pressure, pressure_star   ScalarField
 
 SolverStats
@@ -116,7 +118,7 @@ fields that must remain available between time steps.
 ```text
 solver_init
     +-- allocate persistent fields
-        +-- 4 VectorField = 12 full-grid arrays
+        +-- 6 VectorField = 18 full-grid arrays
         +-- 2 ScalarField =  2 full-grid arrays
 
 solver_solve
@@ -125,3 +127,73 @@ solver_solve
     +-- run all time steps
     +-- free pressure_buffer, rhs, and tmp
 ```
+## Convergence study
+
+Run the spatial and temporal convergence tests:
+
+```sh
+./scripts/run_convergence.sh
+```
+
+Errors and convergence rates are written to `build/convergence/results.csv`.
+
+![Velocity convergence](docs/convergence/velocity.svg)
+
+![Pressure convergence](docs/convergence/pressure.svg)
+
+## Nonlinear convection
+
+The momentum equation includes the nonlinear term in skew-symmetric form,
+
+```text
+C(u) = 1/2 [(u . grad)u + div(u tensor u)].
+```
+
+The advective and divergence forms are discretized separately on the
+staggered grid and added in `convective_term`. Values required at upper
+boundaries are reconstructed from the prescribed Dirichlet data using ghost
+points.
+
+Convection is advanced explicitly. At each time step, the velocity at the
+intermediate time level is extrapolated from the two previous solutions,
+
+```text
+u* = 3/2 u^n - 1/2 u^(n-1),
+```
+
+and `convective_term` is evaluated using `u*`. Diffusion remains implicit and
+is handled by the three directional ADI solves in `momentum_step`.
+
+The discrete convective forms and the temporal extrapolation are checked by
+`convective_forms`. A manufactured solution containing nonlinear convection
+is provided by `paper_convective_man`. Its spatial and temporal convergence
+studies can be reproduced with:
+
+```sh
+./scripts/run_convective_convergence.sh
+```
+
+The errors and observed rates are written to
+`build/convective_convergence/results.csv`.
+
+![Convective velocity convergence](docs/convective_convergence/velocity.svg)
+
+![Convective pressure convergence](docs/convective_convergence/pressure.svg)
+
+## Numerical applications
+
+### Lid-driven cavity
+
+The three-dimensional lid-driven cavity is simulated at $Re=400$ on a
+$64^3$ grid. The figure shows the velocity magnitude and velocity vectors on
+a central section at the final time $T=20$.
+
+![Velocity field in the lid-driven cavity at Re = 400](docs/images/cavity_re400.png)
+
+### Channel with an inclined Brinkman obstacle
+
+The channel case is simulated at $Re=400$ using Brinkman penalization for the
+inclined wall-attached obstacle. The figure shows the velocity magnitude on a
+central spanwise section at the final time $T=6$.
+
+![Velocity field around the inclined Brinkman obstacle at Re = 400](docs/images/channel_re400.png)

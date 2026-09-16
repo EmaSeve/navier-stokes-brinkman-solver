@@ -46,8 +46,6 @@ static Real free_fluid_permeability(Real x, Real y, Real z, Real t,
 
 /*
  * f = du/dt + (u . grad)u - NU lap(u) + grad(p) + NU/K u.
- * The final term is negligible here, but keeps the manufactured forcing
- * exactly consistent with the Navier--Stokes--Brinkman solver.
  */
 static Real manufactured_forcing(Real x, Real y, Real z, Real t,
                                  int component)

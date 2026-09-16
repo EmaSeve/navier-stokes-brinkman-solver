@@ -214,7 +214,6 @@ Real bc_right(VectorFunction bc_velocity,
     return 0.0;
 }
 
-
 static inline Real interior_second_derivative(const Real *restrict field,
                                               size_t index,
                                               size_t stride,
@@ -234,8 +233,7 @@ static inline Real upper_second_derivative(const Real *restrict field,
             2.0 * boundary_value) * inverse_spacing_square;
 }
 
-
-/* Advective form = (u . grad) U_component */
+/* Advective form = (u . grad) U_component. */
 
 bool valid_convective_point(int i, int j, int k, int component) {
     if (i < 1 || j < 1 || k < 1) {
@@ -243,14 +241,14 @@ bool valid_convective_point(int i, int j, int k, int component) {
     }
 
     switch (component) {
-    case 0:
-        return i < WIDTH - 1 && j < HEIGHT && k < DEPTH;
-    case 1:
-        return i < WIDTH && j < HEIGHT - 1 && k < DEPTH;
-    case 2:
-        return i < WIDTH && j < HEIGHT && k < DEPTH - 1;
-    default:
-        return false;
+        case 0:
+            return i < WIDTH - 1 && j < HEIGHT && k < DEPTH;
+        case 1:
+            return i < WIDTH && j < HEIGHT - 1 && k < DEPTH;
+        case 2:
+            return i < WIDTH && j < HEIGHT && k < DEPTH - 1;
+        default:
+            return false;
     }
 }
 
@@ -267,17 +265,17 @@ static Real convective_component_value(const VectorField *restrict vel,
     Real z;
 
     switch (component) {
-    case 0:
-        field = vel->v_x;
-        break;
-    case 1:
-        field = vel->v_y;
-        break;
-    case 2:
-        field = vel->v_z;
-        break;
-    default:
-        return (Real)0;
+        case 0:
+            field = vel->v_x;
+            break;
+        case 1:
+            field = vel->v_y;
+            break;
+        case 2:
+            field = vel->v_z;
+            break;
+        default:
+            return (Real)0;
     }
 
     if (i >= 0 && i < WIDTH && j >= 0 && j < HEIGHT &&
@@ -340,41 +338,41 @@ Real advective_form(int i, int j, int k, int component,
         const Real *restrict w = vel->v_z;
 
         switch (component) {
-        case 0: {
-            const Real v_bar = (Real)0.25 *
-                (v[index] + v[index + 1] + v[index - WIDTH] +
-                 v[index + 1 - WIDTH]);
-            const Real w_bar = (Real)0.25 *
-                (w[index] + w[index + 1] + w[index - plane] +
-                 w[index + 1 - plane]);
-                 return u[index] * (u[index + 1] - u[index - 1]) * inv_4dx +
-                     v_bar * (u[index + WIDTH] - u[index - WIDTH]) * inv_4dy +
-                     w_bar * (u[index + plane] - u[index - plane]) * inv_4dz;
-        }
-        case 1: {
-            const Real u_bar = (Real)0.25 *
-                (u[index] + u[index + WIDTH] + u[index - 1] +
-                 u[index - 1 + WIDTH]);
-            const Real w_bar = (Real)0.25 *
-                (w[index] + w[index + WIDTH] + w[index - plane] +
-                 w[index + WIDTH - plane]);
-                 return u_bar * (v[index + 1] - v[index - 1]) * inv_4dx +
-                     v[index] * (v[index + WIDTH] - v[index - WIDTH]) * inv_4dy +
-                     w_bar * (v[index + plane] - v[index - plane]) * inv_4dz;
-        }
-        case 2: {
-            const Real u_bar = (Real)0.25 *
-                (u[index] + u[index + plane] + u[index - 1] +
-                 u[index - 1 + plane]);
-            const Real v_bar = (Real)0.25 *
-                (v[index] + v[index + plane] + v[index - WIDTH] +
-                 v[index - WIDTH + plane]);
-                 return u_bar * (w[index + 1] - w[index - 1]) * inv_4dx +
-                     v_bar * (w[index + WIDTH] - w[index - WIDTH]) * inv_4dy +
-                     w[index] * (w[index + plane] - w[index - plane]) * inv_4dz;
-        }
-        default:
-            return (Real)0;
+            case 0: {
+                const Real v_bar = (Real)0.25 *
+                    (v[index] + v[index + 1] + v[index - WIDTH] +
+                     v[index + 1 - WIDTH]);
+                const Real w_bar = (Real)0.25 *
+                    (w[index] + w[index + 1] + w[index - plane] +
+                     w[index + 1 - plane]);
+                return u[index] * (u[index + 1] - u[index - 1]) * inv_4dx +
+                       v_bar * (u[index + WIDTH] - u[index - WIDTH]) * inv_4dy +
+                       w_bar * (u[index + plane] - u[index - plane]) * inv_4dz;
+            }
+            case 1: {
+                const Real u_bar = (Real)0.25 *
+                    (u[index] + u[index + WIDTH] + u[index - 1] +
+                     u[index - 1 + WIDTH]);
+                const Real w_bar = (Real)0.25 *
+                    (w[index] + w[index + WIDTH] + w[index - plane] +
+                     w[index + WIDTH - plane]);
+                return u_bar * (v[index + 1] - v[index - 1]) * inv_4dx +
+                       v[index] * (v[index + WIDTH] - v[index - WIDTH]) * inv_4dy +
+                       w_bar * (v[index + plane] - v[index - plane]) * inv_4dz;
+            }
+            case 2: {
+                const Real u_bar = (Real)0.25 *
+                    (u[index] + u[index + plane] + u[index - 1] +
+                     u[index - 1 + plane]);
+                const Real v_bar = (Real)0.25 *
+                    (v[index] + v[index + plane] + v[index - WIDTH] +
+                     v[index - WIDTH + plane]);
+                return u_bar * (w[index + 1] - w[index - 1]) * inv_4dx +
+                       v_bar * (w[index + WIDTH] - w[index - WIDTH]) * inv_4dy +
+                       w[index] * (w[index + plane] - w[index - plane]) * inv_4dz;
+            }
+            default:
+                return (Real)0;
         }
     }
 
@@ -406,9 +404,9 @@ Real advective_form(int i, int j, int k, int component,
                  convective_component_value(vel, 2, i, j, k - 1, bc_velocity, time) +
                  convective_component_value(vel, 2, i + 1, j, k - 1, bc_velocity, time));
 
-                 return u_center * dudx * inv_4dx +
-                     v_bar * dudy * inv_4dy +
-                     w_bar * dudz * inv_4dz;
+            return u_center * dudx * inv_4dx +
+                   v_bar * dudy * inv_4dy +
+                   w_bar * dudz * inv_4dz;
         }
 
         case 1: {
@@ -438,9 +436,9 @@ Real advective_form(int i, int j, int k, int component,
                  convective_component_value(vel, 2, i, j, k - 1, bc_velocity, time) +
                  convective_component_value(vel, 2, i, j + 1, k - 1, bc_velocity, time));
 
-                 return u_bar * dvdx * inv_4dx +
-                     v_center * dvdy * inv_4dy +
-                     w_bar * dvdz * inv_4dz;
+            return u_bar * dvdx * inv_4dx +
+                   v_center * dvdy * inv_4dy +
+                   w_bar * dvdz * inv_4dz;
         }
 
         case 2: {
@@ -470,9 +468,9 @@ Real advective_form(int i, int j, int k, int component,
                  convective_component_value(vel, 1, i, j - 1, k, bc_velocity, time) +
                  convective_component_value(vel, 1, i, j - 1, k + 1, bc_velocity, time));
 
-                 return u_bar * dwdx * inv_4dx +
-                     v_bar * dwdy * inv_4dy +
-                     w_center * dwdz * inv_4dz;
+            return u_bar * dwdx * inv_4dx +
+                   v_bar * dwdy * inv_4dy +
+                   w_center * dwdz * inv_4dz;
         }
 
         default:
@@ -499,114 +497,238 @@ Real divergence_form(int i, int j, int k, int component,
         const Real *restrict w = vel->v_z;
 
         switch (component) {
-        case 0: {
-            const Real u_i = (Real)0.5 * (u[index - 1] + u[index]);
-            const Real u_ip1 = (Real)0.5 * (u[index] + u[index + 1]);
-            const Real u_jp = (Real)0.5 * (u[index] + u[index + WIDTH]);
-            const Real u_jm = (Real)0.5 * (u[index] + u[index - WIDTH]);
-            const Real v_jp = (Real)0.5 * (v[index] + v[index + 1]);
-            const Real v_jm = (Real)0.5 * (v[index - WIDTH] + v[index + 1 - WIDTH]);
-            const Real u_kp = (Real)0.5 * (u[index] + u[index + plane]);
-            const Real u_km = (Real)0.5 * (u[index] + u[index - plane]);
-            const Real w_kp = (Real)0.5 * (w[index] + w[index + 1]);
-            const Real w_km = (Real)0.5 * (w[index - plane] + w[index + 1 - plane]);
-                 return (u_ip1 * u_ip1 - u_i * u_i) * inv_2dx +
-                     (u_jp * v_jp - u_jm * v_jm) * inv_2dy +
-                     (u_kp * w_kp - u_km * w_km) * inv_2dz;
-        }
-        case 1: {
-            const Real u_ip = (Real)0.5 * (u[index] + u[index + WIDTH]);
-            const Real u_im = (Real)0.5 * (u[index - 1] + u[index - 1 + WIDTH]);
-            const Real v_ip = (Real)0.5 * (v[index] + v[index + 1]);
-            const Real v_im = (Real)0.5 * (v[index] + v[index - 1]);
-            const Real v_j = (Real)0.5 * (v[index - WIDTH] + v[index]);
-            const Real v_jp1 = (Real)0.5 * (v[index] + v[index + WIDTH]);
-            const Real v_kp = (Real)0.5 * (v[index] + v[index + plane]);
-            const Real v_km = (Real)0.5 * (v[index] + v[index - plane]);
-            const Real w_kp = (Real)0.5 * (w[index] + w[index + WIDTH]);
-            const Real w_km = (Real)0.5 * (w[index - plane] + w[index + WIDTH - plane]);
-                 return (u_ip * v_ip - u_im * v_im) * inv_2dx +
-                     (v_jp1 * v_jp1 - v_j * v_j) * inv_2dy +
-                     (v_kp * w_kp - v_km * w_km) * inv_2dz;
-        }
-        case 2: {
-            const Real u_ip = (Real)0.5 * (u[index] + u[index + plane]);
-            const Real u_im = (Real)0.5 * (u[index - 1] + u[index - 1 + plane]);
-            const Real w_ip = (Real)0.5 * (w[index] + w[index + 1]);
-            const Real w_im = (Real)0.5 * (w[index] + w[index - 1]);
-            const Real v_jp = (Real)0.5 * (v[index] + v[index + plane]);
-            const Real v_jm = (Real)0.5 * (v[index - WIDTH] + v[index - WIDTH + plane]);
-            const Real w_jp = (Real)0.5 * (w[index] + w[index + WIDTH]);
-            const Real w_jm = (Real)0.5 * (w[index] + w[index - WIDTH]);
-            const Real w_k = (Real)0.5 * (w[index - plane] + w[index]);
-            const Real w_kp1 = (Real)0.5 * (w[index] + w[index + plane]);
-                 return (u_ip * w_ip - u_im * w_im) * inv_2dx +
-                     (v_jp * w_jp - v_jm * w_jm) * inv_2dy +
-                     (w_kp1 * w_kp1 - w_k * w_k) * inv_2dz;
-        }
-        default:
-            return (Real)0;
+            case 0: {
+                const Real u_i = (Real)0.5 * (u[index - 1] + u[index]);
+                const Real u_ip1 = (Real)0.5 * (u[index] + u[index + 1]);
+                const Real u_jp = (Real)0.5 * (u[index] + u[index + WIDTH]);
+                const Real u_jm = (Real)0.5 * (u[index] + u[index - WIDTH]);
+                const Real v_jp = (Real)0.5 * (v[index] + v[index + 1]);
+                const Real v_jm = (Real)0.5 *
+                    (v[index - WIDTH] + v[index + 1 - WIDTH]);
+                const Real u_kp = (Real)0.5 * (u[index] + u[index + plane]);
+                const Real u_km = (Real)0.5 * (u[index] + u[index - plane]);
+                const Real w_kp = (Real)0.5 * (w[index] + w[index + 1]);
+                const Real w_km = (Real)0.5 *
+                    (w[index - plane] + w[index + 1 - plane]);
+                return (u_ip1 * u_ip1 - u_i * u_i) * inv_2dx +
+                       (u_jp * v_jp - u_jm * v_jm) * inv_2dy +
+                       (u_kp * w_kp - u_km * w_km) * inv_2dz;
+            }
+            case 1: {
+                const Real u_ip = (Real)0.5 * (u[index] + u[index + WIDTH]);
+                const Real u_im = (Real)0.5 *
+                    (u[index - 1] + u[index - 1 + WIDTH]);
+                const Real v_ip = (Real)0.5 * (v[index] + v[index + 1]);
+                const Real v_im = (Real)0.5 * (v[index] + v[index - 1]);
+                const Real v_j = (Real)0.5 * (v[index - WIDTH] + v[index]);
+                const Real v_jp1 = (Real)0.5 * (v[index] + v[index + WIDTH]);
+                const Real v_kp = (Real)0.5 * (v[index] + v[index + plane]);
+                const Real v_km = (Real)0.5 * (v[index] + v[index - plane]);
+                const Real w_kp = (Real)0.5 * (w[index] + w[index + WIDTH]);
+                const Real w_km = (Real)0.5 *
+                    (w[index - plane] + w[index + WIDTH - plane]);
+                return (u_ip * v_ip - u_im * v_im) * inv_2dx +
+                       (v_jp1 * v_jp1 - v_j * v_j) * inv_2dy +
+                       (v_kp * w_kp - v_km * w_km) * inv_2dz;
+            }
+            case 2: {
+                const Real u_ip = (Real)0.5 * (u[index] + u[index + plane]);
+                const Real u_im = (Real)0.5 *
+                    (u[index - 1] + u[index - 1 + plane]);
+                const Real w_ip = (Real)0.5 * (w[index] + w[index + 1]);
+                const Real w_im = (Real)0.5 * (w[index] + w[index - 1]);
+                const Real v_jp = (Real)0.5 * (v[index] + v[index + plane]);
+                const Real v_jm = (Real)0.5 *
+                    (v[index - WIDTH] + v[index - WIDTH + plane]);
+                const Real w_jp = (Real)0.5 * (w[index] + w[index + WIDTH]);
+                const Real w_jm = (Real)0.5 * (w[index] + w[index - WIDTH]);
+                const Real w_k = (Real)0.5 * (w[index - plane] + w[index]);
+                const Real w_kp1 = (Real)0.5 * (w[index] + w[index + plane]);
+                return (u_ip * w_ip - u_im * w_im) * inv_2dx +
+                       (v_jp * w_jp - v_jm * w_jm) * inv_2dy +
+                       (w_kp1 * w_kp1 - w_k * w_k) * inv_2dz;
+            }
+            default:
+                return (Real)0;
         }
     }
 
     switch (component) {
         case 0: {
-            Real u_i = (Real)0.5 * (convective_component_value(vel, 0, i - 1, j, k, bc_velocity, time) + convective_component_value(vel, 0, i, j, k, bc_velocity, time));
-            Real u_ip1 = (Real)0.5 * (convective_component_value(vel, 0, i, j, k, bc_velocity, time) + convective_component_value(vel, 0, i + 1, j, k, bc_velocity, time));
-            Real u_jp = (Real)0.5 * (convective_component_value(vel, 0, i, j, k, bc_velocity, time) + convective_component_value(vel, 0, i, j + 1, k, bc_velocity, time));
-            Real u_jm = (Real)0.5 * (convective_component_value(vel, 0, i, j, k, bc_velocity, time) + convective_component_value(vel, 0, i, j - 1, k, bc_velocity, time));
-            Real v_jp = (Real)0.5 * (convective_component_value(vel, 1, i, j, k, bc_velocity, time) + convective_component_value(vel, 1, i + 1, j, k, bc_velocity, time));
-            Real v_jm = (Real)0.5 * (convective_component_value(vel, 1, i, j - 1, k, bc_velocity, time) + convective_component_value(vel, 1, i + 1, j - 1, k, bc_velocity, time));
-            Real u_kp = (Real)0.5 * (convective_component_value(vel, 0, i, j, k, bc_velocity, time) + convective_component_value(vel, 0, i, j, k + 1, bc_velocity, time));
-            Real u_km = (Real)0.5 * (convective_component_value(vel, 0, i, j, k, bc_velocity, time) + convective_component_value(vel, 0, i, j, k - 1, bc_velocity, time));
-            Real w_kp = (Real)0.5 * (convective_component_value(vel, 2, i, j, k, bc_velocity, time) + convective_component_value(vel, 2, i + 1, j, k, bc_velocity, time));
-            Real w_km = (Real)0.5 * (convective_component_value(vel, 2, i, j, k - 1, bc_velocity, time) + convective_component_value(vel, 2, i + 1, j, k - 1, bc_velocity, time));
+            Real u_i = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i - 1, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i, j, k, bc_velocity, time));
+            Real u_ip1 = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i + 1, j, k, bc_velocity, time));
+            Real u_jp = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i, j + 1, k, bc_velocity, time));
+            Real u_jm = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i, j - 1, k, bc_velocity, time));
+            Real v_jp = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i + 1, j, k, bc_velocity, time));
+            Real v_jm = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j - 1, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i + 1, j - 1, k, bc_velocity, time));
+            Real u_kp = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i, j, k + 1, bc_velocity, time));
+            Real u_km = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i, j, k - 1, bc_velocity, time));
+            Real w_kp = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i + 1, j, k, bc_velocity, time));
+            Real w_km = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k - 1, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i + 1, j, k - 1, bc_velocity, time));
 
-                 return (u_ip1 * u_ip1 - u_i * u_i) * inv_2dx +
-                     (u_jp * v_jp - u_jm * v_jm) * inv_2dy +
-                     (u_kp * w_kp - u_km * w_km) * inv_2dz;
+            return (u_ip1 * u_ip1 - u_i * u_i) * inv_2dx +
+                   (u_jp * v_jp - u_jm * v_jm) * inv_2dy +
+                   (u_kp * w_kp - u_km * w_km) * inv_2dz;
         }
 
         case 1: {
-            Real u_ip = (Real)0.5 * (convective_component_value(vel, 0, i, j, k, bc_velocity, time) + convective_component_value(vel, 0, i, j + 1, k, bc_velocity, time));
-            Real u_im = (Real)0.5 * (convective_component_value(vel, 0, i - 1, j, k, bc_velocity, time) + convective_component_value(vel, 0, i - 1, j + 1, k, bc_velocity, time));
-            Real v_ip = (Real)0.5 * (convective_component_value(vel, 1, i, j, k, bc_velocity, time) + convective_component_value(vel, 1, i + 1, j, k, bc_velocity, time));
-            Real v_im = (Real)0.5 * (convective_component_value(vel, 1, i, j, k, bc_velocity, time) + convective_component_value(vel, 1, i - 1, j, k, bc_velocity, time));
-            Real v_j = (Real)0.5 * (convective_component_value(vel, 1, i, j - 1, k, bc_velocity, time) + convective_component_value(vel, 1, i, j, k, bc_velocity, time));
-            Real v_jp1 = (Real)0.5 * (convective_component_value(vel, 1, i, j, k, bc_velocity, time) + convective_component_value(vel, 1, i, j + 1, k, bc_velocity, time));
-            Real v_kp = (Real)0.5 * (convective_component_value(vel, 1, i, j, k, bc_velocity, time) + convective_component_value(vel, 1, i, j, k + 1, bc_velocity, time));
-            Real v_km = (Real)0.5 * (convective_component_value(vel, 1, i, j, k, bc_velocity, time) + convective_component_value(vel, 1, i, j, k - 1, bc_velocity, time));
-            Real w_kp = (Real)0.5 * (convective_component_value(vel, 2, i, j, k, bc_velocity, time) + convective_component_value(vel, 2, i, j + 1, k, bc_velocity, time));
-            Real w_km = (Real)0.5 * (convective_component_value(vel, 2, i, j, k - 1, bc_velocity, time) + convective_component_value(vel, 2, i, j + 1, k - 1, bc_velocity, time));
+            Real u_ip = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i, j + 1, k, bc_velocity, time));
+            Real u_im = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i - 1, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i - 1, j + 1, k, bc_velocity, time));
+            Real v_ip = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i + 1, j, k, bc_velocity, time));
+            Real v_im = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i - 1, j, k, bc_velocity, time));
+            Real v_j = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j - 1, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i, j, k, bc_velocity, time));
+            Real v_jp1 = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i, j + 1, k, bc_velocity, time));
+            Real v_kp = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i, j, k + 1, bc_velocity, time));
+            Real v_km = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i, j, k - 1, bc_velocity, time));
+            Real w_kp = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i, j + 1, k, bc_velocity, time));
+            Real w_km = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k - 1, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i, j + 1, k - 1, bc_velocity, time));
 
-                 return (u_ip * v_ip - u_im * v_im) * inv_2dx +
-                     (v_jp1 * v_jp1 - v_j * v_j) * inv_2dy +
-                     (v_kp * w_kp - v_km * w_km) * inv_2dz;
+            return (u_ip * v_ip - u_im * v_im) * inv_2dx +
+                   (v_jp1 * v_jp1 - v_j * v_j) * inv_2dy +
+                   (v_kp * w_kp - v_km * w_km) * inv_2dz;
         }
 
         case 2: {
-            Real u_ip = (Real)0.5 * (convective_component_value(vel, 0, i, j, k, bc_velocity, time) + convective_component_value(vel, 0, i, j, k + 1, bc_velocity, time));
-            Real u_im = (Real)0.5 * (convective_component_value(vel, 0, i - 1, j, k, bc_velocity, time) + convective_component_value(vel, 0, i - 1, j, k + 1, bc_velocity, time));
-            Real w_ip = (Real)0.5 * (convective_component_value(vel, 2, i, j, k, bc_velocity, time) + convective_component_value(vel, 2, i + 1, j, k, bc_velocity, time));
-            Real w_im = (Real)0.5 * (convective_component_value(vel, 2, i, j, k, bc_velocity, time) + convective_component_value(vel, 2, i - 1, j, k, bc_velocity, time));
-            Real v_jp = (Real)0.5 * (convective_component_value(vel, 1, i, j, k, bc_velocity, time) + convective_component_value(vel, 1, i, j, k + 1, bc_velocity, time));
-            Real v_jm = (Real)0.5 * (convective_component_value(vel, 1, i, j - 1, k, bc_velocity, time) + convective_component_value(vel, 1, i, j - 1, k + 1, bc_velocity, time));
-            Real w_jp = (Real)0.5 * (convective_component_value(vel, 2, i, j, k, bc_velocity, time) + convective_component_value(vel, 2, i, j + 1, k, bc_velocity, time));
-            Real w_jm = (Real)0.5 * (convective_component_value(vel, 2, i, j, k, bc_velocity, time) + convective_component_value(vel, 2, i, j - 1, k, bc_velocity, time));
-            Real w_k = (Real)0.5 * (convective_component_value(vel, 2, i, j, k - 1, bc_velocity, time) + convective_component_value(vel, 2, i, j, k, bc_velocity, time));
-            Real w_kp1 = (Real)0.5 * (convective_component_value(vel, 2, i, j, k, bc_velocity, time) + convective_component_value(vel, 2, i, j, k + 1, bc_velocity, time));
+            Real u_ip = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i, j, k + 1, bc_velocity, time));
+            Real u_im = (Real)0.5 *
+                (convective_component_value(
+                     vel, 0, i - 1, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 0, i - 1, j, k + 1, bc_velocity, time));
+            Real w_ip = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i + 1, j, k, bc_velocity, time));
+            Real w_im = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i - 1, j, k, bc_velocity, time));
+            Real v_jp = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i, j, k + 1, bc_velocity, time));
+            Real v_jm = (Real)0.5 *
+                (convective_component_value(
+                     vel, 1, i, j - 1, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 1, i, j - 1, k + 1, bc_velocity, time));
+            Real w_jp = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i, j + 1, k, bc_velocity, time));
+            Real w_jm = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i, j - 1, k, bc_velocity, time));
+            Real w_k = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k - 1, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i, j, k, bc_velocity, time));
+            Real w_kp1 = (Real)0.5 *
+                (convective_component_value(
+                     vel, 2, i, j, k, bc_velocity, time) +
+                 convective_component_value(
+                     vel, 2, i, j, k + 1, bc_velocity, time));
 
-                 return (u_ip * w_ip - u_im * w_im) * inv_2dx +
-                     (v_jp * w_jp - v_jm * w_jm) * inv_2dy +
-                     (w_kp1 * w_kp1 - w_k * w_k) * inv_2dz;
+            return (u_ip * w_ip - u_im * w_im) * inv_2dx +
+                   (v_jp * w_jp - v_jm * w_jm) * inv_2dy +
+                   (w_kp1 * w_kp1 - w_k * w_k) * inv_2dz;
         }
 
         default:
             return (Real)0;
     }
 }
-
-
 
 Real convective_term(int i, int j, int k, int component,
                      const VectorField *restrict vel,
@@ -614,10 +736,6 @@ Real convective_term(int i, int j, int k, int component,
     return advective_form(i, j, k, component, vel, bc_velocity, time) +
            divergence_form(i, j, k, component, vel, bc_velocity, time);
 }
-
-
-
-
 
 /*
  * Momentum source at (t_step - 1/2) DT:
@@ -633,8 +751,8 @@ Real g_value(int i, int j, int k, int t_step, Real k_i,
              const Data *data, int component) {
     size_t plane_size = (size_t)WIDTH * HEIGHT;
     size_t index = (size_t)k * plane_size +
-                         (size_t)j * WIDTH +
-                         (size_t)i;
+                   (size_t)j * WIDTH +
+                   (size_t)i;
     Real forcing_time = ((Real)t_step - 0.5) * (Real)DT;
     Real velocity_time = ((Real)t_step - 1.0) * (Real)DT;
     Real upper_x = ((Real)WIDTH - 0.5) * (Real)DX;
@@ -766,13 +884,13 @@ Real g_value(int i, int j, int k, int t_step, Real k_i,
             return 0.0;
     }
 
-        convection = convective_term(i, j, k, component,
-                         &solver_mem_state->u_star,
-                         data->bc_velocity, forcing_time);
+    convection = convective_term(i, j, k, component,
+                                 &solver_mem_state->u_star,
+                                 data->bc_velocity, forcing_time);
 
-        return data->forcing_fn(x, y, z, forcing_time, component) -
+    return data->forcing_fn(x, y, z, forcing_time, component) -
            pressure_gradient -
-            convection -
+           convection -
            ((Real)NU / k_i) * velocity[index] +
            (Real)NU * (laplacian_x + laplacian_y + laplacian_z);
 }

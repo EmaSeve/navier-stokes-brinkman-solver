@@ -1,124 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img">
-<title>Velocity convergence</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="520" viewBox="0 0 1160 520">
 <defs>
-<filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
-<feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#0f172a" flood-opacity="0.08"/>
-</filter>
-<clipPath id="spatial-clip"><rect x="114" y="210" width="446" height="280" rx="8"/></clipPath>
-<clipPath id="temporal-clip"><rect x="684" y="210" width="446" height="280" rx="8"/></clipPath>
+<clipPath id="spatial"><rect x="125" y="130" width="410" height="300"/></clipPath>
+<clipPath id="temporal"><rect x="675" y="130" width="410" height="300"/></clipPath>
 <style>
-text { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #172033; }
-.canvas { fill: #f6f8fc; }
-.card { fill: #ffffff; stroke: #dfe5ef; filter: url(#shadow); }
-.plot-background { fill: #fbfcfe; stroke: #d8e0eb; }
-.figure-title { font-size: 25px; font-weight: 700; letter-spacing: -0.3px; }
-.figure-subtitle { font-size: 13px; fill: #64748b; }
-.panel-title { font-size: 18px; font-weight: 700; }
-.panel-subtitle { font-size: 12px; fill: #64748b; }
-.axis-label { font-size: 13px; font-weight: 600; fill: #475569; }
-.tick { font-size: 11px; fill: #64748b; }
-.legend { font-size: 11px; font-weight: 600; }
-.muted { fill: #64748b; }
-.grid { stroke: #dfe6ef; stroke-width: 1; }
-.grid.vertical { stroke: #edf1f6; }
-.series-line { stroke-width: 2.7; stroke-linecap: round; stroke-linejoin: round; }
-.reference { stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 7 6; }
+text { font-family: Helvetica, Arial, sans-serif; fill: #222; }
+.panel-title { font-size: 17px; font-weight: 600; }
+.subtitle { font-size: 11.5px; fill: #555; }
+.legend { font-size: 11.5px; }
+.tick { font-size: 11px; fill: #444; }
+.axis-label { font-size: 13px; }
+.grid { stroke: #d8d8d8; stroke-width: 1; }
+.grid.vertical { stroke: #e5e5e5; }
+.axis { stroke: #333; stroke-width: 1.2; }
+.series { stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.reference { stroke: #555; stroke-width: 1.8; stroke-dasharray: 7 5; }
 </style>
 </defs>
-<rect width="1200" height="620" class="canvas"/>
-<text x="600.0" y="39.0" class="figure-title" text-anchor="middle">Velocity convergence</text>
-<text x="600.0" y="65.0" class="figure-subtitle" text-anchor="middle">Manufactured solution  ·  log–log scale  ·  static reference</text>
-<rect x="40" y="92" width="550" height="480" rx="18" class="card"/>
-<text x="68.0" y="126.0" class="panel-title" text-anchor="start">Spatial refinement</text>
-<text x="68.0" y="149.0" class="panel-subtitle" text-anchor="start">Grid refinement at fixed Δt and final time</text>
-<line x1="68.0" y1="176.0" x2="93.0" y2="176.0" stroke="#2563eb" stroke-width="2.5"/>
-<circle cx="80.5" cy="176.0" r="3.8" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<text x="102.0" y="180.5" class="legend" text-anchor="start">uₓ  ·  rates 1.45 / 1.75 / 1.90  ·  finest 1.90</text>
-<line x1="328.0" y1="176.0" x2="353.0" y2="176.0" stroke="#e11d48" stroke-width="2.5"/>
-<rect x="336.7" y="172.2" width="7.6" height="7.6" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<text x="362.0" y="180.5" class="legend" text-anchor="start">uᵧ  ·  rates 1.45 / 1.74 / 1.90  ·  finest 1.90</text>
-<line x1="68.0" y1="198.0" x2="93.0" y2="198.0" stroke="#059669" stroke-width="2.5"/>
-<polygon points="80.5,193.7 84.8,198.0 80.5,202.3 76.2,198.0" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<text x="102.0" y="202.5" class="legend" text-anchor="start">u_z  ·  rates 1.32 / 1.67 / 1.86  ·  finest 1.86</text>
-<line x1="328.0" y1="198.0" x2="353.0" y2="198.0" class="reference"/>
-<text x="362.0" y="202.5" class="legend muted" text-anchor="start">second-order  O(h²)</text>
-<rect x="114" y="210" width="446" height="280" rx="8" class="plot-background"/>
-<line x1="114" y1="337.9" x2="560" y2="337.9" class="grid"/>
-<text x="102.0" y="341.9" class="tick" text-anchor="end">10⁻⁴</text>
-<line x1="145.3" y1="210" x2="145.3" y2="490" class="grid vertical"/>
-<text x="145.3" y="515.0" class="tick" text-anchor="middle">0.02464</text>
-<line x1="257.5" y1="210" x2="257.5" y2="490" class="grid vertical"/>
-<text x="257.5" y="515.0" class="tick" text-anchor="middle">0.0329</text>
-<line x1="416.0" y1="210" x2="416.0" y2="490" class="grid vertical"/>
-<text x="416.0" y="515.0" class="tick" text-anchor="middle">0.04947</text>
-<line x1="528.7" y1="210" x2="528.7" y2="490" class="grid vertical"/>
-<text x="528.7" y="515.0" class="tick" text-anchor="middle">0.06614</text>
-<g clip-path="url(#spatial-clip)">
-<polyline points="145.3,464.4 257.5,418.8 416.0,359.7 528.7,324.7" fill="none" stroke="#2563eb" class="series-line"/>
-<circle cx="145.3" cy="464.4" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<circle cx="257.5" cy="418.8" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<circle cx="416.0" cy="359.7" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<circle cx="528.7" cy="324.7" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<polyline points="145.3,464.8 257.5,419.1 416.0,360.0 528.7,325.1" fill="none" stroke="#e11d48" class="series-line"/>
-<rect x="140.8" y="460.3" width="9.0" height="9.0" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<rect x="253.0" y="414.6" width="9.0" height="9.0" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<rect x="411.5" y="355.5" width="9.0" height="9.0" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<rect x="524.2" y="320.6" width="9.0" height="9.0" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<polyline points="145.3,399.1 257.5,354.4 416.0,297.9 528.7,266.1" fill="none" stroke="#059669" class="series-line"/>
-<polygon points="145.3,394.1 150.3,399.1 145.3,404.1 140.3,399.1" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<polygon points="257.5,349.4 262.5,354.4 257.5,359.4 252.5,354.4" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<polygon points="416.0,292.9 421.0,297.9 416.0,302.9 411.0,297.9" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<polygon points="528.7,261.1 533.7,266.1 528.7,271.1 523.7,266.1" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<polyline points="145.3,399.1 257.5,351.1 416.0,283.4 528.7,235.2" fill="none" class="reference"/>
+<rect width="1160" height="520" fill="white"/>
+<text x="305.0" y="55.0" class="panel-title" text-anchor="middle">Spatial refinement</text>
+<text x="305.0" y="78.0" class="subtitle" text-anchor="middle">Δt = 0.0001;  T = 0.0016</text>
+<line x1="95.0" y1="108" x2="119.0" y2="108" stroke="#1f77b4" class="series"/>
+<circle cx="107.0" cy="108.0" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<text x="126.0" y="112.0" class="legend" text-anchor="start">u_x</text>
+<line x1="200.0" y1="108" x2="224.0" y2="108" stroke="#d55e00" class="series" stroke-dasharray="6 3"/>
+<rect x="207.9" y="103.9" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<text x="231.0" y="112.0" class="legend" text-anchor="start">u_y</text>
+<line x1="305.0" y1="108" x2="329.0" y2="108" stroke="#009e73" class="series"/>
+<polygon points="317.0,103.0 322.0,108.0 317.0,113.0 312.0,108.0" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<text x="336.0" y="112.0" class="legend" text-anchor="start">u_z</text>
+<line x1="410.0" y1="108" x2="434.0" y2="108" class="reference"/>
+<text x="441.0" y="112.0" class="legend" text-anchor="start">O(N⁻²)</text>
+<line x1="125" y1="239.5" x2="535" y2="239.5" class="grid"/>
+<text x="115.0" y="243.5" class="tick" text-anchor="end">10⁻⁴</text>
+<line x1="150.2" y1="130" x2="150.2" y2="430" class="grid vertical"/>
+<text x="150.2" y="453.0" class="tick" text-anchor="middle">48</text>
+<line x1="255.7" y1="130" x2="255.7" y2="430" class="grid vertical"/>
+<text x="255.7" y="453.0" class="tick" text-anchor="middle">64</text>
+<line x1="404.3" y1="130" x2="404.3" y2="430" class="grid vertical"/>
+<text x="404.3" y="453.0" class="tick" text-anchor="middle">96</text>
+<line x1="509.8" y1="130" x2="509.8" y2="430" class="grid vertical"/>
+<text x="509.8" y="453.0" class="tick" text-anchor="middle">128</text>
+<line x1="125" y1="430" x2="535" y2="430" class="axis"/>
+<line x1="125" y1="130" x2="125" y2="430" class="axis"/>
+<g clip-path="url(#spatial)">
+<polyline points="150.2,224.0 255.7,265.2 404.3,334.8 509.8,388.5" fill="none" stroke="#1f77b4" class="series"/>
+<circle cx="150.2" cy="224.0" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<circle cx="255.7" cy="265.2" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<circle cx="404.3" cy="334.8" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<circle cx="509.8" cy="388.5" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<polyline points="150.2,224.5 255.7,265.6 404.3,335.2 509.8,388.9" fill="none" stroke="#d55e00" class="series" stroke-dasharray="6 3"/>
+<rect x="146.1" y="220.4" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<rect x="251.6" y="261.5" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<rect x="400.2" y="331.1" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<rect x="505.7" y="384.8" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<polyline points="150.2,155.0 255.7,192.5 404.3,259.0 509.8,311.6" fill="none" stroke="#009e73" class="series"/>
+<polygon points="150.2,150.0 155.2,155.0 150.2,160.0 145.2,155.0" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<polygon points="255.7,187.5 260.7,192.5 255.7,197.5 250.7,192.5" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<polygon points="404.3,254.0 409.3,259.0 404.3,264.0 399.3,259.0" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<polygon points="509.8,306.6 514.8,311.6 509.8,316.6 504.8,311.6" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<polyline points="150.2,213.4 255.7,269.6 404.3,348.8 509.8,405.0" fill="none" class="reference"/>
 </g>
-<text x="337.0" y="548.0" class="axis-label" text-anchor="middle">Grid spacing  h</text>
-<text x="64.0" y="350.0" class="axis-label" text-anchor="middle" transform="rotate(-90 64.0 350.0)">L² error</text>
-<rect x="610" y="92" width="550" height="480" rx="18" class="card"/>
-<text x="638.0" y="126.0" class="panel-title" text-anchor="start">Temporal refinement</text>
-<text x="638.0" y="149.0" class="panel-subtitle" text-anchor="start">Time step decreases while the grid is fixed</text>
-<line x1="638.0" y1="176.0" x2="663.0" y2="176.0" stroke="#2563eb" stroke-width="2.5"/>
-<circle cx="650.5" cy="176.0" r="3.8" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<text x="672.0" y="180.5" class="legend" text-anchor="start">uₓ  ·  rates 1.88 / 2.02 / 2.02  ·  finest 2.02</text>
-<line x1="898.0" y1="176.0" x2="923.0" y2="176.0" stroke="#e11d48" stroke-width="2.5"/>
-<rect x="906.7" y="172.2" width="7.6" height="7.6" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<text x="932.0" y="180.5" class="legend" text-anchor="start">uᵧ  ·  rates 1.89 / 2.01 / 1.44  ·  finest 1.44</text>
-<line x1="638.0" y1="198.0" x2="663.0" y2="198.0" stroke="#059669" stroke-width="2.5"/>
-<polygon points="650.5,193.7 654.8,198.0 650.5,202.3 646.2,198.0" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<text x="672.0" y="202.5" class="legend" text-anchor="start">u_z  ·  rates 1.89 / 2.05 / 1.71  ·  finest 1.71</text>
-<line x1="898.0" y1="198.0" x2="923.0" y2="198.0" class="reference"/>
-<text x="932.0" y="202.5" class="legend muted" text-anchor="start">second-order  O(Δt²)</text>
-<rect x="684" y="210" width="446" height="280" rx="8" class="plot-background"/>
-<line x1="684" y1="435.4" x2="1130" y2="435.4" class="grid"/>
-<text x="672.0" y="439.4" class="tick" text-anchor="end">10⁻³</text>
-<line x1="684" y1="317.5" x2="1130" y2="317.5" class="grid"/>
-<text x="672.0" y="321.5" class="tick" text-anchor="end">10⁻²</text>
-<line x1="711.4" y1="210" x2="711.4" y2="490" class="grid vertical"/>
-<text x="711.4" y="515.0" class="tick" text-anchor="middle">6.25×10⁻³</text>
-<line x1="841.8" y1="210" x2="841.8" y2="490" class="grid vertical"/>
-<text x="841.8" y="515.0" class="tick" text-anchor="middle">0.0125</text>
-<line x1="972.2" y1="210" x2="972.2" y2="490" class="grid vertical"/>
-<text x="972.2" y="515.0" class="tick" text-anchor="middle">0.025</text>
-<line x1="1102.6" y1="210" x2="1102.6" y2="490" class="grid vertical"/>
-<text x="1102.6" y="515.0" class="tick" text-anchor="middle">0.05</text>
-<g clip-path="url(#temporal-clip)">
-<polyline points="711.4,464.8 841.8,393.0 972.2,321.2 1102.6,254.4" fill="none" stroke="#2563eb" class="series-line"/>
-<circle cx="711.4" cy="464.8" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<circle cx="841.8" cy="393.0" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<circle cx="972.2" cy="321.2" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<circle cx="1102.6" cy="254.4" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.4"/>
-<polyline points="711.4,444.0 841.8,392.9 972.2,321.6 1102.6,254.5" fill="none" stroke="#e11d48" class="series-line"/>
-<rect x="706.9" y="439.5" width="9.0" height="9.0" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<rect x="837.3" y="388.4" width="9.0" height="9.0" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<rect x="967.7" y="317.1" width="9.0" height="9.0" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<rect x="1098.1" y="250.0" width="9.0" height="9.0" rx="1" fill="#ffffff" stroke="#e11d48" stroke-width="2.4"/>
-<polyline points="711.4,454.6 841.8,394.0 972.2,321.4 1102.6,254.3" fill="none" stroke="#059669" class="series-line"/>
-<polygon points="711.4,449.6 716.4,454.6 711.4,459.6 706.4,454.6" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<polygon points="841.8,389.0 846.8,394.0 841.8,399.0 836.8,394.0" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<polygon points="972.2,316.4 977.2,321.4 972.2,326.4 967.2,321.4" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<polygon points="1102.6,249.3 1107.6,254.3 1102.6,259.3 1097.6,254.3" fill="#ffffff" stroke="#059669" stroke-width="2.4"/>
-<polyline points="711.4,448.2 841.8,377.2 972.2,306.2 1102.6,235.2" fill="none" class="reference"/>
+<text x="330.0" y="486.0" class="axis-label" text-anchor="middle">grid size  N</text>
+<text x="72.0" y="280.0" class="axis-label" text-anchor="middle" transform="rotate(-90 72.0 280.0)">L² error</text>
+<text x="855.0" y="55.0" class="panel-title" text-anchor="middle">Temporal refinement</text>
+<text x="855.0" y="78.0" class="subtitle" text-anchor="middle">N = 96;  T = 1</text>
+<line x1="645.0" y1="108" x2="669.0" y2="108" stroke="#1f77b4" class="series"/>
+<circle cx="657.0" cy="108.0" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<text x="676.0" y="112.0" class="legend" text-anchor="start">u_x</text>
+<line x1="750.0" y1="108" x2="774.0" y2="108" stroke="#d55e00" class="series" stroke-dasharray="6 3"/>
+<rect x="757.9" y="103.9" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<text x="781.0" y="112.0" class="legend" text-anchor="start">u_y</text>
+<line x1="855.0" y1="108" x2="879.0" y2="108" stroke="#009e73" class="series"/>
+<polygon points="867.0,103.0 872.0,108.0 867.0,113.0 862.0,108.0" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<text x="886.0" y="112.0" class="legend" text-anchor="start">u_z</text>
+<line x1="960.0" y1="108" x2="984.0" y2="108" class="reference"/>
+<text x="991.0" y="112.0" class="legend" text-anchor="start">O(Δt²)</text>
+<line x1="675" y1="341.0" x2="1085" y2="341.0" class="grid"/>
+<text x="665.0" y="345.0" class="tick" text-anchor="end">10⁻³</text>
+<line x1="675" y1="219.9" x2="1085" y2="219.9" class="grid"/>
+<text x="665.0" y="223.9" class="tick" text-anchor="end">10⁻²</text>
+<line x1="1059.8" y1="130" x2="1059.8" y2="430" class="grid vertical"/>
+<text x="1059.8" y="453.0" class="tick" text-anchor="middle">0.00625</text>
+<line x1="939.9" y1="130" x2="939.9" y2="430" class="grid vertical"/>
+<text x="939.9" y="453.0" class="tick" text-anchor="middle">0.0125</text>
+<line x1="820.1" y1="130" x2="820.1" y2="430" class="grid vertical"/>
+<text x="820.1" y="453.0" class="tick" text-anchor="middle">0.025</text>
+<line x1="700.2" y1="130" x2="700.2" y2="430" class="grid vertical"/>
+<text x="700.2" y="453.0" class="tick" text-anchor="middle">0.05</text>
+<line x1="675" y1="430" x2="1085" y2="430" class="axis"/>
+<line x1="675" y1="130" x2="675" y2="430" class="axis"/>
+<g clip-path="url(#temporal)">
+<polyline points="1059.8,371.1 939.9,297.5 820.1,223.8 700.2,155.1" fill="none" stroke="#1f77b4" class="series"/>
+<circle cx="1059.8" cy="371.1" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<circle cx="939.9" cy="297.5" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<circle cx="820.1" cy="223.8" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<circle cx="700.2" cy="155.1" r="4.2" fill="white" stroke="#1f77b4" stroke-width="2.1"/>
+<polyline points="1059.8,349.8 939.9,297.3 820.1,224.1 700.2,155.2" fill="none" stroke="#d55e00" class="series" stroke-dasharray="6 3"/>
+<rect x="1055.7" y="345.7" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<rect x="935.8" y="293.2" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<rect x="816.0" y="220.0" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<rect x="696.1" y="151.1" width="8.2" height="8.2" fill="white" stroke="#d55e00" stroke-width="2.1"/>
+<polyline points="1059.8,360.6 939.9,298.5 820.1,224.0 700.2,155.0" fill="none" stroke="#009e73" class="series"/>
+<polygon points="1059.8,355.6 1064.8,360.6 1059.8,365.6 1054.8,360.6" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<polygon points="939.9,293.5 944.9,298.5 939.9,303.5 934.9,298.5" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<polygon points="820.1,219.0 825.1,224.0 820.1,229.0 815.1,224.0" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<polygon points="700.2,150.0 705.2,155.0 700.2,160.0 695.2,155.0" fill="white" stroke="#009e73" stroke-width="2.1"/>
+<polyline points="1059.8,405.0 939.9,332.1 820.1,259.3 700.2,186.4" fill="none" class="reference"/>
 </g>
-<text x="907.0" y="548.0" class="axis-label" text-anchor="middle">Time step  Δt</text>
-<text x="634.0" y="350.0" class="axis-label" text-anchor="middle" transform="rotate(-90 634.0 350.0)">L² error</text>
+<text x="880.0" y="486.0" class="axis-label" text-anchor="middle">time step  Δt</text>
+<text x="622.0" y="280.0" class="axis-label" text-anchor="middle" transform="rotate(-90 622.0 280.0)">L² error</text>
 </svg>

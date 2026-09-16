@@ -4,6 +4,8 @@ SIMD ?= 0
 ZETA_SIMD_VECTORS ?= 16
 U_SIMD_VECTORS ?= 16
 
+include configs/channel_re400.mk
+
 ifeq ($(SIMD),1)
 CFLAGS += -DUSE_SIMD \
 	-DZETA_SIMD_VECTORS=$(ZETA_SIMD_VECTORS) \
@@ -41,11 +43,18 @@ test: tests
 $(TEST_BIN_DIR)/channel_obstacle $(TEST_BIN_DIR)/moving_sphere: CFLAGS += $(CHANNEL_CFLAGS)
 $(TEST_BIN_DIR)/cavity: CFLAGS += $(CAVITY_CFLAGS)
 
+$(TEST_BIN_DIR)/channel_obstacle_re400: CFLAGS += $(CHANNEL_RE400_CFLAGS)
+$(TEST_BIN_DIR)/channel_obstacle_re400: $(TEST_DIR)/channel_obstacle.c \
+		$(CORE_SOURCES) $(HEADERS) $(TEST_HEADERS) Makefile \
+		configs/channel_re400.mk
+	mkdir -p $(TEST_BIN_DIR)
+	$(CC) $(CFLAGS) $< $(CORE_SOURCES) -o $@ -lm
+
 $(TEST_BIN_DIR)/%: $(TEST_DIR)/%.c $(CORE_SOURCES) $(HEADERS) $(TEST_HEADERS) Makefile
 	mkdir -p $(TEST_BIN_DIR)
 	$(CC) $(CFLAGS) $< $(CORE_SOURCES) -o $@ -lm
 
 clean:
-	rm -f $(TARGET) $(TEST_TARGETS)
+	rm -f $(TARGET) $(TEST_TARGETS) $(TEST_BIN_DIR)/channel_obstacle_re400
 
 .PHONY: clean test tests

@@ -117,36 +117,6 @@ static void test_compute_extrapolated_velocity(void)
     free_velocity_history(&state);
 }
 
-static void test_swap_velocity_buffers(void)
-{
-    SolverMemState state = {0};
-    Real *u_x;
-    Real *u_y;
-    Real *u_z;
-    Real *u_prev_x;
-    Real *u_prev_y;
-    Real *u_prev_z;
-    alloc_velocity_history(&state);
-
-    u_x = state.u.v_x;
-    u_y = state.u.v_y;
-    u_z = state.u.v_z;
-    u_prev_x = state.u_prev.v_x;
-    u_prev_y = state.u_prev.v_y;
-    u_prev_z = state.u_prev.v_z;
-    state.u.v_x[0] = (Real)1;
-    state.u_prev.v_x[0] = (Real)2;
-
-    swap_velocity_buffers(&state);
-    assert_true("x buffers swapped", state.u.v_x == u_prev_x && state.u_prev.v_x == u_x);
-    assert_true("y buffers swapped", state.u.v_y == u_prev_y && state.u_prev.v_y == u_y);
-    assert_true("z buffers swapped", state.u.v_z == u_prev_z && state.u_prev.v_z == u_z);
-    assert_close("x values not copied", state.u.v_x[0], (Real)2);
-    assert_close("previous x values not copied", state.u_prev.v_x[0], (Real)1);
-
-    free_velocity_history(&state);
-}
-
 static void fill_constant(VectorField *vel)
 {
     for (size_t p = 0; p < GRID_CELLS; ++p) {
@@ -287,7 +257,6 @@ int main(void)
 
     test_valid_convective_point();
     test_compute_extrapolated_velocity();
-    test_swap_velocity_buffers();
     test_temporal_convective_extrapolation();
 
     fill_constant(&vel);

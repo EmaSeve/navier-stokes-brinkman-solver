@@ -38,7 +38,6 @@ void momentum_step(SolverMemState *solver_mem_state,
                    int t_step,
                    SolverStats *solver_stats);
 
-void swap_velocity_buffers(SolverMemState *solver_mem_state);
 void compute_extrapolated_velocity(SolverMemState *solver_mem_state,
                                    int t_step);
 
