@@ -16,12 +16,7 @@ Navier–Stokes–Brinkman equations are
 
 $$
 \begin{aligned}
-\frac{\partial \mathbf{u}}{\partial t}
-+ (\mathbf{u}\cdot\nabla)\mathbf{u}
-- \nu\nabla^2\mathbf{u}
-+ \nabla p
-+ \frac{\nu}{K}\mathbf{u}
-&= \mathbf{f},\\
+\frac{\partial \mathbf{u}}{\partial t} + (\mathbf{u}\cdot\nabla)\mathbf{u} - \nu\nabla^2\mathbf{u} + \nabla p + \frac{\nu}{K}\mathbf{u} &= \mathbf{f},\\
 \nabla\cdot\mathbf{u} &= 0.
 \end{aligned}
 $$
