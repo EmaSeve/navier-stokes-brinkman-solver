@@ -1,127 +1,28 @@
-# Navier Stokes Brinkman Equation Solver
+# Navier–Stokes–Brinkman Solver
 
+The `serial` and `convective` branches use the
+same build procedure and produce a serial executable.
 
 ## Build
 
-Compile the main `solver` executable:
+### Requirements
+
+- a C11 compiler;
+- GNU Make.
+
+To enable the explicit SIMD momentum kernels, compile with:
 
 ```sh
-make solver
+make solver SIMD=1 ZETA_SIMD_VECTORS=16 U_SIMD_VECTORS=16
 ```
 
-Enable the explicit SIMD momentum kernels with independently tunable blocks of SIMD vectors:
+`ZETA_SIMD_VECTORS` and `U_SIMD_VECTORS` control the number of SIMD vectors
+processed in each block and can be tuned independently.
+
+Compile and run all programs in `test/` with:
 
 ```sh
-make SIMD=1 ZETA_SIMD_VECTORS=16 U_SIMD_VECTORS=16
-```
-
-Compile all tests:
-
-```sh
-make tests
-```
-
-The test executables are created in `build/tests/` and can be run separately:
-
-```sh
-./build/tests/paper_man
-./build/tests/constant_forcing_man
+make tests SIMD=1
+./build/tests/moving_sphere
 ./build/tests/channel_obstacle
-```
-
-## Convergence study
-
-Run the spatial and temporal convergence tests:
-
-```sh
-./scripts/run_convergence.sh
-```
-
-Errors and convergence rates are written to `build/convergence/results.csv`.
-
-![Velocity convergence](docs/convergence/velocity.svg)
-
-![Pressure convergence](docs/convergence/pressure.svg)
-
-## Solver structure
-
-`solver_init` allocates the numerical fields and initializes them through the
-functions stored in `Data`. Then, `solver_solve` advances the solution for
-`STEPS` time steps:
-
-```text
-solver_init
-    |
-    v
-time-step loop
-    |
-    +-- momentum_step
-    |      +-- eta: solve along X
-    |      +-- zeta: solve along Y
-    |      +-- u: solve along Z
-    |
-    +-- pressure_step
-           +-- psi
-           +-- phi_low
-           +-- phi_high
-           +-- pressure update
-```
-
-The momentum systems are solved one direction at a time with the Thomas
-algorithm for tridiagonal matrices. The pressure correction is similarly
-factorized into three directional solves. `momentum.c` and `pressure.c`
-implement these two stages, while `physics.c`, `field.c`, and `data.c` provide
-the physical terms, field utilities, and problem definition.
-
-## Types
-
-`Real` is the scalar type used by every numerical field. It is `double` by
-default and becomes `float` when the code is compiled with `-DUSE_FLOAT`.
-
-```text
-ScalarField                         VectorField
-+------------------+                +------------------+
-| Real *v          |                | Real *v_x        |
-+------------------+                | Real *v_y        |
-                                    | Real *v_z        |
-                                    +------------------+
-```
-
-The main structures are:
-
-```text
-Data
-+-- name                      scenario name used for output
-+-- bc_velocity()             boundary velocity
-+-- forcing_fn()              forcing term
-+-- porosity_fn()             porosity field
-+-- porosity_time_dependent   boolean
-+-- velocity_fn()             initial/exact velocity
-+-- pressure_fn()             initial/exact pressure
-
-SolverMemState
-+-- eta, zeta, u, k           VectorField
-+-- pressure, pressure_star   ScalarField
-
-SolverStats
-+-- execution times for the solver stages, stored in nanoseconds
-```
-
-Function pointers in `Data` keep the numerical solver independent from a
-specific physical test case. `SolverMemState` groups all
-fields that must remain available between time steps.
-
-## Memory management
-
-```text
-solver_init
-    +-- allocate persistent fields
-        +-- 4 VectorField = 12 full-grid arrays
-        +-- 2 ScalarField =  2 full-grid arrays
-
-solver_solve
-    +-- allocate pressure_buffer   1 full-grid temporary array
-    +-- allocate rhs and tmp       2 reusable line/block buffers
-    +-- run all time steps
-    +-- free pressure_buffer, rhs, and tmp
 ```
